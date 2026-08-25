@@ -10,16 +10,28 @@ const pageVariants = {
 };
 
 const Sell = () => {
-  const { user } = useContext(AuthContext);
+  const { user, refreshUser } = useContext(AuthContext);
   const [formData, setFormData] = useState({
     title: '', description: '', price: '', location: '', type: 'Apartment', contactInfo: ''
   });
   const [image, setImage] = useState(null);
   const [status, setStatus] = useState({ type: '', message: '' });
   const [loading, setLoading] = useState(false);
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleImageChange = (e) => setImage(e.target.files[0]);
+
+  const handleCheckStatus = async () => {
+    setCheckingStatus(true);
+    if (refreshUser) {
+      const updated = await refreshUser();
+      if (updated && updated.isVerified) {
+        setStatus({ type: 'success', message: 'Your seller account is now verified! You can list your property below.' });
+      }
+    }
+    setCheckingStatus(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,17 +49,48 @@ const Sell = () => {
       setFormData({ title: '', description: '', price: '', location: '', type: 'Apartment', contactInfo: '' });
     } catch (err) {
       console.error('Failed to submit property:', err);
-      setStatus({ type: 'danger', message: 'Failed to submit property. Please try again later.' });
+      setStatus({ type: 'danger', message: err.response?.data?.error || 'Failed to submit property. Please try again later.' });
     } finally {
       setLoading(false);
     }
   };
 
-  if (!user || user.role !== 'Seller') {
+  if (!user || (user.role !== 'Seller' && user.role !== 'Admin')) {
     return (
       <div className="container py-5 mt-5 text-center" style={{ minHeight: '80vh' }}>
         <h2 className="text-muted mt-5"><i className="bi bi-lock-fill me-2"></i>Access Restricted</h2>
-        <p>You must be registered and logged in as a <strong>Seller</strong> to list properties.</p>
+        <p>You must be registered and logged in as a <strong>Seller</strong> or <strong>Admin</strong> to list properties.</p>
+      </div>
+    );
+  }
+
+  if (user.role === 'Seller' && !user.isVerified) {
+    return (
+      <div className="container py-5 mt-5 text-center" style={{ minHeight: '80vh' }}>
+        <div className="card shadow-lg p-5 border-warning max-w-lg mx-auto rounded-4 mt-5 bg-light">
+          <i className="bi bi-envelope-exclamation text-warning display-3 mb-3"></i>
+          <h2 className="fw-bold text-dark">Seller Email Verification Pending</h2>
+          <p className="text-muted fs-5">
+            Your seller account (<strong>{user.email}</strong>) is currently pending Admin verification.
+          </p>
+          <div className="alert alert-warning py-3 mb-4 text-start rounded-3">
+            <i className="bi bi-bell-fill me-2"></i>
+            An email notification has been dispatched to the Administrator (<code>admin@nitinrealestate.com</code>) to verify your seller account. Once verified, you will receive a confirmation email and will be able to post properties!
+          </div>
+          <div>
+            <button 
+              onClick={handleCheckStatus} 
+              disabled={checkingStatus}
+              className="btn btn-warning px-4 py-2 fw-bold rounded-pill shadow-sm"
+            >
+              {checkingStatus ? (
+                <span><span className="spinner-border spinner-border-sm me-2" role="status"></span>Checking Status...</span>
+              ) : (
+                <span><i className="bi bi-arrow-clockwise me-2"></i>Check Verification Status</span>
+              )}
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -88,10 +131,11 @@ const Sell = () => {
                   <select className="form-select form-select-lg bg-light" name="type" value={formData.type} onChange={handleChange}>
                     <option value="Apartment">Apartment</option>
                     <option value="Villa">Villa</option>
+                    <option value="Plot">Plot</option>
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-bold">Price ($)</label>
+                  <label className="form-label fw-bold">Price (₹)</label>
                   <input type="number" className="form-control form-control-lg bg-light" name="price" value={formData.price} onChange={handleChange} required placeholder="e.g. 5000000" min="0" />
                 </div>
                 <div className="col-md-6">

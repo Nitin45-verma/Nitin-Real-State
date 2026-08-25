@@ -1,4 +1,4 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
@@ -43,6 +43,108 @@ const Login = () => {
       setIsLoading(false);
     }
   };
+
+  const handleGoogleCallback = async (response) => {
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        '/api/auth/google',
+        { token: response.credential },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      login(res.data.token, res.data.user);
+      navigate('/');
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('Google Login failed due to a network or server error.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const isMockMode = !import.meta.env.VITE_GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID === 'your_google_client_id.apps.googleusercontent.com';
+
+  const handleMockGoogleLogin = async () => {
+    const mockEmail = window.prompt("Enter Mock Google Email for testing:", "dev.googleuser@example.com");
+    if (mockEmail === null) return; // User cancelled
+    if (!mockEmail.trim()) {
+      setError('Email cannot be empty');
+      return;
+    }
+
+    let mockName = "Dev Google User";
+    if (mockEmail !== "dev.googleuser@example.com") {
+      const prefix = mockEmail.split('@')[0].replace(/[^a-zA-Z0-9]/g, ' ');
+      mockName = prefix.charAt(0).toUpperCase() + prefix.slice(1);
+    }
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const res = await axios.post(
+        '/api/auth/google',
+        { 
+          token: 'mock_google_token',
+          email: mockEmail.trim(),
+          name: mockName
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+
+      login(res.data.token, res.data.user);
+      navigate('/');
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.error) {
+        setError(err.response.data.error);
+      } else {
+        setError('Mock Google Login failed.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const callbackRef = useRef();
+  callbackRef.current = handleGoogleCallback;
+
+  useEffect(() => {
+    const initializeGoogle = () => {
+      const targetDiv = document.getElementById('googleSignInDiv');
+      if (window.google && targetDiv && !isMockMode) {
+        window.google.accounts.id.initialize({
+          client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+          callback: (res) => callbackRef.current(res)
+        });
+        window.google.accounts.id.renderButton(
+          targetDiv,
+          { theme: 'outline', size: 'large', text: 'signin_with' }
+        );
+      } else if (!isMockMode) {
+        // Fallback loader if script isn't loaded yet
+        const script = document.querySelector('script[src="https://accounts.google.com/gsi/client"]');
+        if (script) {
+          script.addEventListener('load', initializeGoogle);
+        }
+      }
+    };
+
+    initializeGoogle();
+  }, [isMockMode]);
 
   return (
     <motion.div
@@ -100,6 +202,30 @@ const Login = () => {
             {isLoading ? 'Loading...' : 'Login'}
           </motion.button>
         </form>
+
+        <div className="d-flex align-items-center my-4">
+          <hr className="flex-grow-1 text-muted" />
+          <span className="mx-3 text-muted" style={{ fontSize: '0.9rem' }}>or</span>
+          <hr className="flex-grow-1 text-muted" />
+        </div>
+
+        <div className="w-100 d-flex justify-content-center mb-2">
+          {isMockMode ? (
+            <button 
+              type="button" 
+              className="btn w-100 py-2 d-flex align-items-center justify-content-center border" 
+              style={{ backgroundColor: '#fff', color: '#757575', fontWeight: '500', borderRadius: '0.5rem' }}
+              onClick={handleMockGoogleLogin}
+              disabled={isLoading}
+            >
+              <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style={{ width: '20px', marginRight: '10px' }} />
+              Sign in with Google (Dev Mode)
+            </button>
+          ) : (
+            <div id="googleSignInDiv" style={{ width: '100%' }}></div>
+          )}
+        </div>
+
         <div className="text-center mt-4">
           <p className="text-muted">Don't have an account? <Link to="/register" style={{ color: 'var(--accent-color)', textDecoration: 'none', fontWeight: 'bold' }}>Register here</Link></p>
         </div>
