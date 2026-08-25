@@ -44,6 +44,7 @@ const Login = () => {
     }
   };
 
+
   const handleGoogleCallback = async (response) => {
     setError('');
     setIsLoading(true);
@@ -94,7 +95,7 @@ const Login = () => {
     try {
       const res = await axios.post(
         '/api/auth/google',
-        { 
+        {
           token: 'mock_google_token',
           email: mockEmail.trim(),
           name: mockName
@@ -159,7 +160,7 @@ const Login = () => {
           <h2 className="fw-bold" style={{ color: 'var(--primary-color)' }}>Welcome Back</h2>
           <p className="text-muted">Sign in to your Nitin Real Estate account</p>
         </div>
-        
+
         {/* Bootstrap 5 Alert Banner for User Error Visibility */}
         {error && (
           <div className="alert alert-danger d-flex align-items-center" role="alert">
@@ -171,31 +172,31 @@ const Login = () => {
         <form onSubmit={handleSubmit} className="needs-validation" noValidate>
           <div className="mb-4">
             <label className="form-label fw-bold">Email address</label>
-            <input 
-              type="email" 
-              className="form-control form-control-lg bg-light" 
-              name="email" 
-              value={formData.email} 
-              onChange={handleChange} 
-              required 
+            <input
+              type="email"
+              className="form-control form-control-lg bg-light"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
             />
           </div>
           <div className="mb-4">
             <label className="form-label fw-bold">Password</label>
-            <input 
-              type="password" 
-              className="form-control form-control-lg bg-light" 
-              name="password" 
-              value={formData.password} 
-              onChange={handleChange} 
-              required 
+            <input
+              type="password"
+              className="form-control form-control-lg bg-light"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
             />
           </div>
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            type="submit" 
-            className="btn w-100 py-3 mt-3" 
+            type="submit"
+            className="btn w-100 py-3 mt-3"
             style={{ backgroundColor: 'var(--primary-color)', color: 'white', fontWeight: 'bold' }}
             disabled={isLoading}
           >
@@ -211,9 +212,9 @@ const Login = () => {
 
         <div className="w-100 d-flex justify-content-center mb-2">
           {isMockMode ? (
-            <button 
-              type="button" 
-              className="btn w-100 py-2 d-flex align-items-center justify-content-center border" 
+            <button
+              type="button"
+              className="btn w-100 py-2 d-flex align-items-center justify-content-center border"
               style={{ backgroundColor: '#fff', color: '#757575', fontWeight: '500', borderRadius: '0.5rem' }}
               onClick={handleMockGoogleLogin}
               disabled={isLoading}
