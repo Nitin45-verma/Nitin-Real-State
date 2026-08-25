@@ -6,8 +6,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './index.css';
 
-// Configure Axios baseURL for Vercel -> Render cross-domain deployment
-if (import.meta.env.VITE_API_URL) {
+// Axios uses relative routes (/api) handled by Vercel rewrites in production and Vite proxy in development
+if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.startsWith('https://')) {
   axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 }
 
