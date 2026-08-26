@@ -469,10 +469,10 @@ const AdminDashboard = () => {
 
         {/* Tab Navigation & Search Bar */}
         <div className="glass-tab-nav rounded-4 p-2 mb-4 d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
-          <ul className="nav nav-pills gap-1">
+          <ul className="nav nav-pills gap-1 flex-nowrap overflow-x-auto pb-1" style={{ WebkitOverflowScrolling: 'touch' }}>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'overview' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'overview' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('overview')}
               >
                 <i className="bi bi-speedometer2 me-2"></i> Overview
@@ -480,7 +480,7 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'properties' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'properties' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('properties')}
               >
                 <i className="bi bi-buildings me-2"></i> Properties ({properties.length})
@@ -488,7 +488,7 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'users' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'users' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('users')}
               >
                 <i className="bi bi-person-gear me-2"></i> Users ({users.length})
@@ -496,7 +496,7 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'inquiries' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'inquiries' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('inquiries')}
               >
                 <i className="bi bi-chat-dots me-2"></i> Inquiries ({inquiries.length})
@@ -504,7 +504,7 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'contacts' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'contacts' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('contacts')}
               >
                 <i className="bi bi-envelope me-2"></i> Messages ({contacts.length})
@@ -512,7 +512,7 @@ const AdminDashboard = () => {
             </li>
             <li className="nav-item">
               <button 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all ${activeTab === 'transactions' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap ${activeTab === 'transactions' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
                 onClick={() => setActiveTab('transactions')}
               >
                 <i className="bi bi-receipt me-2"></i> Transactions ({transactions.length})
@@ -548,19 +548,19 @@ const AdminDashboard = () => {
                 {stats?.recentProperties?.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {stats.recentProperties.map(p => (
-                      <div key={p._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="bg-warning bg-opacity-10 p-2 rounded-3 text-warning">
+                      <div key={p._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden" style={{ maxWidth: '100%' }}>
+                          <div className="bg-warning bg-opacity-10 p-2 rounded-3 text-warning flex-shrink-0">
                             <i className="bi bi-building fs-4"></i>
                           </div>
-                          <div>
-                            <div className="fw-bold text-light">{p.title}</div>
-                            <small className="text-slate-light"><i className="bi bi-geo-alt me-1 text-warning"></i>{p.location}</small>
+                          <div className="min-w-0 flex-grow-1 overflow-hidden">
+                            <div className="fw-bold text-light text-truncate" title={p.title}>{p.title}</div>
+                            <small className="text-slate-light d-block text-truncate"><i className="bi bi-geo-alt me-1 text-warning"></i>{p.location}</small>
                           </div>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                           <span className="badge badge-glow-gold px-3 py-2 fs-6 rounded-pill">₹{p.price?.toLocaleString()}</span>
-                          <button onClick={() => openEditPropertyModal(p)} className="btn btn-outline-warning btn-sm rounded-circle p-2" title="Edit Property">
+                        <div className="d-flex align-items-center justify-content-between justify-content-sm-end w-100 w-sm-auto gap-2 border-top border-secondary border-opacity-25 border-sm-0 pt-2 pt-sm-0 flex-shrink-0">
+                          <span className="badge badge-glow-gold px-3 py-2 fs-6 rounded-pill text-nowrap">₹{p.price?.toLocaleString()}</span>
+                          <button onClick={() => openEditPropertyModal(p)} className="btn btn-outline-warning btn-sm rounded-circle p-2 flex-shrink-0" title="Edit Property" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <i className="bi bi-pencil-square fs-6"></i>
                           </button>
                         </div>
@@ -582,25 +582,25 @@ const AdminDashboard = () => {
                 {stats?.recentUsers?.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {stats.recentUsers.map(u => (
-                      <div key={u._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex justify-content-between align-items-center">
-                        <div className="d-flex align-items-center gap-3">
-                          <div className="bg-info bg-opacity-10 p-2 rounded-circle text-info">
+                      <div key={u._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden" style={{ maxWidth: '100%' }}>
+                          <div className="bg-info bg-opacity-10 p-2 rounded-circle text-info flex-shrink-0">
                             <i className="bi bi-person-circle fs-4"></i>
                           </div>
-                          <div>
-                            <div className="fw-bold text-light">{u.name}</div>
-                            <small className="text-slate-light">{u.email}</small>
+                          <div className="min-w-0 flex-grow-1 overflow-hidden">
+                            <div className="fw-bold text-light text-truncate" title={u.name}>{u.name}</div>
+                            <small className="text-slate-light d-block text-truncate">{u.email}</small>
                           </div>
                         </div>
-                        <div className="d-flex align-items-center gap-2">
-                          <span className={`badge ${u.role === 'Admin' ? 'badge-glow-admin' : u.role === 'Seller' ? 'badge-glow-seller' : 'badge-glow-buyer'} px-3 py-2 rounded-pill`}>
+                        <div className="d-flex align-items-center justify-content-between justify-content-sm-end w-100 w-sm-auto gap-2 border-top border-secondary border-opacity-25 border-sm-0 pt-2 pt-sm-0 flex-shrink-0">
+                          <span className={`badge ${u.role === 'Admin' ? 'badge-glow-admin' : u.role === 'Seller' ? 'badge-glow-seller' : 'badge-glow-buyer'} px-3 py-2 rounded-pill text-nowrap`}>
                             {u.role}
                           </span>
                           {u.role === 'Seller' && (
                             u.isVerified ? (
                               <button 
                                 onClick={() => handleSetVerifyUser(u._id, false)}
-                                className="btn btn-outline-danger btn-sm rounded-pill px-2 py-1 small"
+                                className="btn btn-outline-danger btn-sm rounded-pill px-2 py-1 small text-nowrap"
                                 title="Cancel Verification"
                               >
                                 ✕ Cancel
@@ -608,7 +608,7 @@ const AdminDashboard = () => {
                             ) : (
                               <button 
                                 onClick={() => handleSetVerifyUser(u._id, true)}
-                                className="btn btn-success btn-sm rounded-pill px-2 py-1 fw-bold small"
+                                className="btn btn-success btn-sm rounded-pill px-2 py-1 fw-bold small text-nowrap"
                                 title="Verify User"
                               >
                                 ✓ Verify
