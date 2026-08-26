@@ -14,7 +14,7 @@ export const AuthProvider = ({ children }) => {
     if (storedToken && storedToken !== 'null' && storedToken !== 'undefined') {
       try {
         axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-        const res = await axios.get('http://13.51.201.78:5000/api/auth/me');
+        const res = await axios.get('/api/auth/me');
         const userData = res.data.user;
         if (userData && userData._id && !userData.id) {
           userData.id = userData._id;
@@ -44,7 +44,7 @@ export const AuthProvider = ({ children }) => {
       if (storedToken && storedToken !== 'null' && storedToken !== 'undefined') {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
-          const res = await axios.get('http://13.51.201.78:5000/api/auth/me');
+          const res = await axios.get('/api/auth/me');
           const userData = res.data.user;
           if (userData && userData._id && !userData.id) {
             userData.id = userData._id;

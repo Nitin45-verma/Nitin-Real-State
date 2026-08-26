@@ -41,7 +41,7 @@ const PaymentModal = ({ isOpen, onClose, property, user, onPaymentComplete }) =>
       const config = storedToken ? { headers: { Authorization: `Bearer ${storedToken}` } } : {};
 
       // Call backend to create Razorpay Order
-      const { data } = await axios.post('http://13.51.201.78:5000/api/payment/create-order', {
+      const { data } = await axios.post('/api/payment/create-order', {
         property_id: property._id,
         amount: 50000
       }, config);
@@ -61,7 +61,7 @@ const PaymentModal = ({ isOpen, onClose, property, user, onPaymentComplete }) =>
         order_id: data.order_id,
         handler: async function (response) {
           try {
-            const verifyRes = await axios.post('http://13.51.201.78:5000/api/payment/verify', {
+            const verifyRes = await axios.post('/api/payment/verify', {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,

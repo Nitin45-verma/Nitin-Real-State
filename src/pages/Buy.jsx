@@ -47,7 +47,7 @@ const Buy = () => {
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const res = await axios.get('http://13.51.201.78:5000/api/properties');
+        const res = await axios.get('/api/properties');
         setProperties(res.data);
       } catch (err) {
         console.error('Failed to fetch properties:', err);
@@ -69,7 +69,7 @@ const Buy = () => {
   const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this property?")) {
       try {
-        await axios.delete(`http://13.51.201.78:5000/api/properties/${id}`);
+        await axios.delete(`/api/properties/${id}`);
         setProperties(properties.filter(p => p._id !== id));
       } catch (err) {
         alert("Failed to delete property. Check console.");
@@ -85,7 +85,7 @@ const Buy = () => {
 
   const handleInquirySubmit = async (formData) => {
     try {
-      await axios.post('http://13.51.201.78:5000/api/inquiries', {
+      await axios.post('/api/inquiries', {
         buyer_id: user ? user.id : undefined,
         property_id: selectedProperty._id,
         name: formData.name,
@@ -115,12 +115,12 @@ const Buy = () => {
 
   const handlePaymentComplete = async (status) => {
     try {
-      const resIntent = await axios.post('http://13.51.201.78:5000/api/payment/create-intent', {
+      const resIntent = await axios.post('/api/payment/create-intent', {
         property_id: paymentProperty._id,
         amount: 50000 
       });
       
-      await axios.post('http://13.51.201.78:5000/api/payment/verify', {
+      await axios.post('/api/payment/verify', {
         transactionId: resIntent.data.transactionId,
         status: status
       });

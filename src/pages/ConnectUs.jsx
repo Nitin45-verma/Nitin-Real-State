@@ -20,7 +20,7 @@ const ConnectUs = () => {
     setLoading(true);
     setStatus({ type: '', message: '' });
     try {
-      await axios.post('http://13.51.201.78:5000/api/contact', formData);
+      await axios.post('/api/contact', formData);
       setStatus({ type: 'success', message: 'Message sent successfully! Our private client team will reach out to you.' });
       setFormData({ name: '', email: '', message: '' });
     } catch (err) {

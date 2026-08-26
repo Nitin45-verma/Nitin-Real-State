@@ -26,7 +26,7 @@ const AdminRoute = ({ children }) => {
     setPromoting(true);
     setErrorMsg('');
     try {
-      const res = await axios.post('http://13.51.201.78:5000/api/admin/make-me-admin');
+      const res = await axios.post('/api/admin/make-me-admin');
       if (res.data.success) {
         login(token, res.data.user);
       }
