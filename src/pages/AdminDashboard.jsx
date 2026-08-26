@@ -342,7 +342,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-vh-100 admin-portal-bg text-light py-5 mt-4">
+    <div className="min-vh-100 admin-portal-bg text-light py-5" style={{ paddingTop: '100px' }}>
       <div className="container-fluid px-lg-5">
 
         {/* Top Header Banner */}
@@ -358,23 +358,12 @@ const AdminDashboard = () => {
             <p className="text-slate-light mb-0">Overview of estate listings, client user accounts, seller verification & revenue logs</p>
           </div>
           <div className="mt-3 mt-md-0 d-flex gap-2">
-            <motion.button 
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={openAddPropertyModal} 
-              className="btn btn-warning rounded-pill px-4 py-2 d-flex align-items-center gap-2 fw-bold text-dark shadow"
-            >
-              <i className="bi bi-plus-circle-fill fs-5"></i> Add New Property
-            </motion.button>
-            <motion.button 
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={loadAllData} 
-              className="btn btn-outline-warning rounded-pill px-3 py-2 d-flex align-items-center gap-2 fw-semibold shadow-sm"
-              title="Refresh Data"
-            >
-              <i className="bi bi-arrow-clockwise fs-5"></i>
-            </motion.button>
+            <button onClick={loadAllData} className="btn btn-outline-warning rounded-pill px-3 py-2 btn-sm fw-semibold">
+              <i className="bi bi-arrow-clockwise me-1"></i> Refresh Data
+            </button>
+            <button onClick={openAddPropertyModal} className="btn btn-warning rounded-pill px-4 py-2 btn-sm fw-bold shadow-sm">
+              <i className="bi bi-plus-lg me-1"></i> Add Property
+            </button>
           </div>
         </div>
 
@@ -394,8 +383,8 @@ const AdminDashboard = () => {
           )}
         </AnimatePresence>
 
-        {/* Stat Cards Row */}
-        <div className="row g-4 mb-4">
+        {/* KPI STATS GRID */}
+        <div className="row g-3 mb-4">
           <div className="col-12 col-sm-6 col-xl-3">
             <motion.div whileHover={{ y: -4 }} className="glass-card rounded-4 p-4 h-100">
               <div className="d-flex align-items-center justify-content-between">
@@ -548,19 +537,19 @@ const AdminDashboard = () => {
                 {stats?.recentProperties?.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {stats.recentProperties.map(p => (
-                      <div key={p._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden" style={{ maxWidth: '100%' }}>
+                      <div key={p._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex align-items-center justify-content-between gap-3">
+                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden">
                           <div className="bg-warning bg-opacity-10 p-2 rounded-3 text-warning flex-shrink-0">
                             <i className="bi bi-building fs-4"></i>
                           </div>
                           <div className="min-w-0 flex-grow-1 overflow-hidden">
-                            <div className="fw-bold text-light text-truncate" title={p.title}>{p.title}</div>
-                            <small className="text-slate-light d-block text-truncate"><i className="bi bi-geo-alt me-1 text-warning"></i>{p.location}</small>
+                            <div className="fw-bold text-white text-truncate" title={p.title} style={{ color: '#ffffff !important' }}>{p.title}</div>
+                            <small className="text-slate-light d-block text-truncate" style={{ color: '#9ca3af !important' }}><i className="bi bi-geo-alt me-1 text-warning"></i>{p.location}</small>
                           </div>
                         </div>
-                        <div className="d-flex align-items-center justify-content-between justify-content-sm-end w-100 w-sm-auto gap-2 border-top border-secondary border-opacity-25 border-sm-0 pt-2 pt-sm-0 flex-shrink-0">
+                        <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
                           <span className="badge badge-glow-gold px-3 py-2 fs-6 rounded-pill text-nowrap">₹{p.price?.toLocaleString()}</span>
-                          <button onClick={() => openEditPropertyModal(p)} className="btn btn-outline-warning btn-sm rounded-circle p-2 flex-shrink-0" title="Edit Property" style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <button onClick={() => openEditPropertyModal(p)} className="btn btn-outline-warning btn-sm rounded-circle flex-shrink-0" title="Edit Property" style={{ width: '36px', height: '36px', minWidth: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <i className="bi bi-pencil-square fs-6"></i>
                           </button>
                         </div>
@@ -582,17 +571,17 @@ const AdminDashboard = () => {
                 {stats?.recentUsers?.length > 0 ? (
                   <div className="d-flex flex-column gap-3">
                     {stats.recentUsers.map(u => (
-                      <div key={u._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden" style={{ maxWidth: '100%' }}>
+                      <div key={u._id} className="p-3 rounded-3 bg-dark bg-opacity-40 border border-secondary border-opacity-30 d-flex align-items-center justify-content-between gap-3">
+                        <div className="d-flex align-items-center gap-3 min-w-0 flex-grow-1 overflow-hidden">
                           <div className="bg-info bg-opacity-10 p-2 rounded-circle text-info flex-shrink-0">
                             <i className="bi bi-person-circle fs-4"></i>
                           </div>
                           <div className="min-w-0 flex-grow-1 overflow-hidden">
-                            <div className="fw-bold text-light text-truncate" title={u.name}>{u.name}</div>
-                            <small className="text-slate-light d-block text-truncate">{u.email}</small>
+                            <div className="fw-bold text-white text-truncate" title={u.name} style={{ color: '#ffffff !important' }}>{u.name}</div>
+                            <small className="text-slate-light d-block text-truncate" style={{ color: '#9ca3af !important' }}>{u.email}</small>
                           </div>
                         </div>
-                        <div className="d-flex align-items-center justify-content-between justify-content-sm-end w-100 w-sm-auto gap-2 border-top border-secondary border-opacity-25 border-sm-0 pt-2 pt-sm-0 flex-shrink-0">
+                        <div className="d-flex align-items-center gap-2 flex-shrink-0 ms-2">
                           <span className={`badge ${u.role === 'Admin' ? 'badge-glow-admin' : u.role === 'Seller' ? 'badge-glow-seller' : 'badge-glow-buyer'} px-3 py-2 rounded-pill text-nowrap`}>
                             {u.role}
                           </span>
