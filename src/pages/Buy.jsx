@@ -178,25 +178,27 @@ const Buy = () => {
           </div>
         </div>
 
-        <div className="col-12 d-flex justify-content-center gap-2 flex-wrap">
-          {['All', 'Villa', 'Apartment', 'Plot'].map((type) => (
-            <button
-              key={type}
-              onClick={() => setSelectedType(type)}
-              className={`btn rounded-pill px-4 py-2 fw-semibold transition-all ${
-                selectedType === type 
-                  ? 'btn-dark shadow-sm' 
-                  : 'btn-outline-secondary'
-              }`}
-              style={{
-                borderColor: selectedType === type ? 'var(--accent-color)' : '#cbd5e1',
-                backgroundColor: selectedType === type ? 'var(--primary-color)' : 'transparent',
-                color: selectedType === type ? '#ffffff' : 'var(--primary-color)'
-              }}
-            >
-              {type === 'All' ? '🏡 All Estates' : type === 'Villa' ? '🏰 Villas' : type === 'Apartment' ? '🏙️ Apartments' : '📐 Plots & Land'}
-            </button>
-          ))}
+        <div className="col-12">
+          <div className="category-filter-container">
+            {['All', 'Villa', 'Apartment', 'Plot'].map((type) => (
+              <button
+                key={type}
+                onClick={() => setSelectedType(type)}
+                className={`btn category-filter-btn rounded-pill px-3 py-2 fw-semibold transition-all ${
+                  selectedType === type 
+                    ? 'btn-dark shadow-sm' 
+                    : 'btn-outline-secondary'
+                }`}
+                style={{
+                  borderColor: selectedType === type ? 'var(--accent-color)' : '#cbd5e1',
+                  backgroundColor: selectedType === type ? 'var(--primary-color)' : 'transparent',
+                  color: selectedType === type ? '#ffffff' : 'var(--primary-color)'
+                }}
+              >
+                {type === 'All' ? '🏡 All Estates' : type === 'Villa' ? '🏰 Villas' : type === 'Apartment' ? '🏙️ Apartments' : '📐 Plots & Land'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -217,13 +219,17 @@ const Buy = () => {
             {filteredProperties.map((prop, idx) => (
               <motion.div key={prop._id || idx} className="col-lg-4 col-md-6" variants={itemVariant} layoutId={prop._id} exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}>
                 <div className="card card-luxury h-100">
-                  <div style={{ overflow: 'hidden', height: '250px', position: 'relative' }}>
+                  <div style={{ overflow: 'hidden', height: '220px', position: 'relative' }}>
                     <motion.img 
                       whileHover={{ scale: 1.05 }}
                       transition={{ duration: 0.5 }}
                       src={prop.image ? getImageUrl(prop.image) : fallbackImages[idx % fallbackImages.length]} 
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = fallbackImages[idx % fallbackImages.length];
+                      }}
                       className="card-img-top h-100 w-100 object-fit-cover" 
-                      alt={prop.title} 
+                      alt={prop.title || 'Property'} 
                     />
                     {user && (user.id === prop.user_id || user.id === (prop.user_id && prop.user_id._id)) && (
                       <button 

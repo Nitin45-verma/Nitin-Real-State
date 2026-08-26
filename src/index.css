@@ -492,3 +492,89 @@ h1, h2, h3, h4, h5, h6 {
   color: #ffffff !important;
   box-shadow: 0 10px 25px rgba(37, 211, 102, 0.5);
 }
+
+/* Mobile Responsiveness Improvements */
+.category-filter-container {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: rgba(15, 23, 42, 0.98);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 1.25rem;
+    border-radius: 16px;
+    margin-top: 12px;
+    border: 1px solid rgba(212, 175, 55, 0.25);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+  }
+
+  .navbar-nav .nav-link {
+    padding: 10px 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  body {
+    font-size: 0.92rem;
+  }
+
+  .container {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  h1.display-3, h1.display-4 {
+    font-size: 1.95rem !important;
+  }
+
+  h2.display-5 {
+    font-size: 1.55rem !important;
+  }
+
+  .category-filter-container {
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+  }
+
+  .category-filter-btn {
+    white-space: nowrap;
+    flex-shrink: 0;
+    font-size: 0.85rem;
+    padding: 8px 16px !important;
+    scroll-snap-align: start;
+  }
+
+  .card-luxury .card-body {
+    padding: 1.25rem;
+  }
+
+  .card-luxury .price-tag {
+    font-size: 1.2rem;
+  }
+
+  .btn-luxury-primary, .btn-luxury-secondary {
+    padding: 0.55rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .admin-portal-bg {
+    padding-top: 1rem !important;
+  }
+
+  .table-responsive {
+    border-radius: 12px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
