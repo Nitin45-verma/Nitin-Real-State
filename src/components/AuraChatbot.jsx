@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
 const INITIAL_MESSAGES = [
@@ -91,8 +92,8 @@ const AuraChatbot = () => {
         };
       }
       return {
-        text: "नितिन रियल एस्टेट में आपका स्वागत है! परफेक्ट प्रॉपर्टी ढूंढने के लिए कृपया बताएं:\n\n1. **पसंदीदा लोकेशन** (उदा. नोएडा, ग्रेटर नोएडा, दिल्ली NCR)\n2. **प्रॉपर्टी का प्रकार** (फ्लैट, विला, प्लॉट)\n3. **अनुमानित बजट सीमा**",
-        quickOptions: ["₹50 लाख से कम", "₹50 लाख - ₹1.5 करोड़", "₹1.5 करोड़ से अधिक"]
+        text: "मैं यह विवरण हमारे प्रॉपर्टी कंसल्टेंट से चेक करके आपको कॉल बैक करवा देती हूँ। क्या आपका फ़ोन नंबर मिल सकता है?",
+        quickOptions: ["फोन नंबर साझा करें", "बजट 50 लाख से कम", "विला विकल्प दिखाएं"]
       };
     }
 
@@ -129,8 +130,8 @@ const AuraChatbot = () => {
         };
       }
       return {
-        text: "Main aapke budget ke hisaab se best flats dikha sakti hu! Perfect property dhoondhne ke liye kripya share karein:\n\n1. **Preferred Location** (e.g., Noida, Greater Noida, Delhi NCR)\n2. **Property Type** (Apartment, Villa, Plot)\n3. **Approximate Budget Range**",
-        quickOptions: ["Under ₹50 Lakhs", "₹50 Lakhs - ₹1.5 Cr", "Above ₹1.5 Cr"]
+        text: "Main ye detail hamare property consultant se check karke aapko call back karwa deta hu. Aapka phone number mil sakta hai?",
+        quickOptions: ["Share Mobile Number", "Under ₹50 Lakhs", "Luxury Villas"]
       };
     }
 
@@ -167,12 +168,12 @@ const AuraChatbot = () => {
     }
 
     return {
-      text: "Thank you for reaching out! To help me find the perfect property match for you, could you share:\n\n1. **Preferred Location** (e.g., Noida, Greater Noida, Delhi NCR)\n2. **Property Type** (Apartment, Villa, Plot)\n3. **Approximate Budget Range**",
-      quickOptions: ["Under ₹50 Lakhs", "₹50 Lakhs - ₹1.5 Cr", "Above ₹1.5 Cr"]
+      text: "I will check this detail with our senior property consultant and request a callback for you. May I have your mobile number?",
+      quickOptions: ["Share Mobile Number", "Under ₹50 Lakhs", "Luxury Villas"]
     };
   };
 
-  const handleSendMessage = (textToSend) => {
+  const handleSendMessage = async (textToSend) => {
     const messageText = textToSend || inputValue;
     if (!messageText.trim()) return;
 
@@ -183,11 +184,34 @@ const AuraChatbot = () => {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages(prev => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // Simulate Aura thinking & typing
+    try {
+      // Call Real-Time Backend API (/api/chat) powered by @google/genai & gemini-2.5-flash
+      const res = await axios.post('/api/chat', {
+        message: messageText,
+        history: updatedMessages
+      });
+
+      if (res.data && res.data.reply) {
+        const auraMsg = {
+          id: Date.now() + 1,
+          sender: 'aura',
+          text: res.data.reply,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setMessages(prev => [...prev, auraMsg]);
+        setIsTyping(false);
+        return;
+      }
+    } catch (err) {
+      console.warn('Real-time Gemini API call fallback to client rule engine:', err?.message);
+    }
+
+    // Fallback response if API endpoint or key is unavailable
     setTimeout(() => {
       const response = generateAuraResponse(messageText);
       const auraMsg = {
@@ -199,7 +223,7 @@ const AuraChatbot = () => {
       };
       setMessages(prev => [...prev, auraMsg]);
       setIsTyping(false);
-    }, 1000);
+    }, 600);
   };
 
   const handleQuickOptionClick = (option) => {
