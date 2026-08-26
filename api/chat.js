@@ -78,15 +78,20 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { message, history } = req.body || {};
+    const { message, history, userName } = req.body || {};
     if (!message || typeof message !== 'string' || !message.trim()) {
       return res.status(400).json({ error: 'Message is required' });
+    }
+
+    let dynamicSystemPrompt = AURA_SYSTEM_PROMPT;
+    if (userName) {
+      dynamicSystemPrompt += `\n\nClient Name: The current client interacting with you is named "${userName}". Address them naturally by their name.`;
     }
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       // If GEMINI_API_KEY is not set on Vercel yet, execute Aura Multilingual engine & return status 200 OK!
-      const auraReply = generateMultilingualFallback(message);
+      const auraReply = generateMultilingualFallback(message, userName);
       return res.status(200).json({
         success: true,
         reply: auraReply,
@@ -114,7 +119,7 @@ export default async function handler(req, res) {
       model: 'gemini-2.5-flash',
       contents: contents,
       config: {
-        systemInstruction: AURA_SYSTEM_PROMPT,
+        systemInstruction: dynamicSystemPrompt,
         temperature: 0.7,
       }
     });

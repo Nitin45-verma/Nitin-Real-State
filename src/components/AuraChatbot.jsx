@@ -189,11 +189,28 @@ const AuraChatbot = () => {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
+    // Automatically detect phone number in message and trigger POST /api/leads for Admin alert
+    const phoneMatch = messageText.match(/\b[6-9]\d{9}\b/) || messageText.match(/\b\d{10}\b/);
+    if (phoneMatch) {
+      const capturedPhone = phoneMatch[0];
+      try {
+        await axios.post('/api/leads', {
+          name: user?.name || 'Website Visitor',
+          phone: capturedPhone,
+          message: messageText
+        });
+        console.log('📌 Lead automatically captured & sent to /api/leads:', capturedPhone);
+      } catch (leadErr) {
+        console.warn('Lead capture trigger silent fallback:', leadErr?.message);
+      }
+    }
+
     try {
       // Call Real-Time Backend API (/api/chat) powered by @google/genai & gemini-2.5-flash
       const res = await axios.post('/api/chat', {
         message: messageText,
-        history: updatedMessages
+        history: updatedMessages,
+        userName: user?.name || ''
       });
 
       if (res.data && res.data.reply) {
