@@ -4,6 +4,22 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
+const getSafeErrorMsg = (err, defaultMsg) => {
+  if (!err) return defaultMsg;
+  if (typeof err === 'string') return err;
+  if (err.response && err.response.data) {
+    const data = err.response.data;
+    if (typeof data.error === 'string') return data.error;
+    if (typeof data.message === 'string') return data.message;
+    if (typeof data.error === 'object' && data.error !== null) {
+      return data.error.message || JSON.stringify(data.error);
+    }
+    if (typeof data === 'string') return data;
+  }
+  if (err.message && typeof err.message === 'string') return err.message;
+  return defaultMsg;
+};
+
 const Register = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', role: 'Buyer' });
   const [error, setError] = useState('');
@@ -37,12 +53,7 @@ const Register = () => {
         navigate('/');
       }
     } catch (err) {
-      // Explicitly extract error JSON message from the backend or default to standard error
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Registration failed due to a network or server error.');
-      }
+      setError(getSafeErrorMsg(err, 'Registration failed due to a network or server error.'));
     } finally {
       setIsLoading(false);
     }
@@ -73,11 +84,7 @@ const Register = () => {
         navigate('/');
       }
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Google Registration failed due to a network or server error.');
-      }
+      setError(getSafeErrorMsg(err, 'Google Registration failed due to a network or server error.'));
     } finally {
       setIsLoading(false);
     }

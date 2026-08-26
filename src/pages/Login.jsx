@@ -4,6 +4,22 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
+const getSafeErrorMsg = (err, defaultMsg) => {
+  if (!err) return defaultMsg;
+  if (typeof err === 'string') return err;
+  if (err.response && err.response.data) {
+    const data = err.response.data;
+    if (typeof data.error === 'string') return data.error;
+    if (typeof data.message === 'string') return data.message;
+    if (typeof data.error === 'object' && data.error !== null) {
+      return data.error.message || JSON.stringify(data.error);
+    }
+    if (typeof data === 'string') return data;
+  }
+  if (err.message && typeof err.message === 'string') return err.message;
+  return defaultMsg;
+};
+
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -32,12 +48,7 @@ const Login = () => {
       login(response.data.token, response.data.user);
       navigate('/');
     } catch (err) {
-      // Explicit backend error capture
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Login failed due to a network or server error.');
-      }
+      setError(getSafeErrorMsg(err, 'Login failed due to a network or server error.'));
     } finally {
       setIsLoading(false);
     }
@@ -62,11 +73,7 @@ const Login = () => {
       login(res.data.token, res.data.user);
       navigate('/');
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Google Login failed due to a network or server error.');
-      }
+      setError(getSafeErrorMsg(err, 'Google Login failed due to a network or server error.'));
     } finally {
       setIsLoading(false);
     }
@@ -109,11 +116,7 @@ const Login = () => {
       login(res.data.token, res.data.user);
       navigate('/');
     } catch (err) {
-      if (err.response && err.response.data && err.response.data.error) {
-        setError(err.response.data.error);
-      } else {
-        setError('Mock Google Login failed.');
-      }
+      setError(getSafeErrorMsg(err, 'Mock Google Login failed.'));
     } finally {
       setIsLoading(false);
     }
