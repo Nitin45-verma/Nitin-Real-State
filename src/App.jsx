@@ -5,6 +5,7 @@ import { AnimatePresence } from 'framer-motion';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import SplashScreen from './components/SplashScreen';
+import AuraChatbot from './components/AuraChatbot';
 
 // Pages
 import Home from './pages/Home';
@@ -56,6 +57,7 @@ function App() {
           </AnimatePresence>
         </main>
         <Footer />
+        <AuraChatbot />
       </div>
     </AuthProvider>
   );
