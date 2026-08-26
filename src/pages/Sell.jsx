@@ -42,7 +42,7 @@ const Sell = () => {
       Object.keys(formData).forEach(key => data.append(key, formData[key]));
       if(image) data.append('image', image);
 
-      await axios.post('/api/properties', data, {
+      await axios.post('http://13.51.201.78:5000/api/properties', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setStatus({ type: 'success', message: 'Property submitted successfully! Our agents will contact you shortly.' });

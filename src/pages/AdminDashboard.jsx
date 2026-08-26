@@ -39,7 +39,7 @@ const AdminDashboard = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/stats');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/stats');
       if (res.data.success) {
         setStats(res.data.stats);
       }
@@ -50,7 +50,7 @@ const AdminDashboard = () => {
 
   const fetchProperties = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/properties');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/properties');
       if (res.data.success) {
         setProperties(res.data.properties);
       }
@@ -61,7 +61,7 @@ const AdminDashboard = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/users');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/users');
       if (res.data.success) {
         setUsers(res.data.users);
       }
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
 
   const fetchInquiries = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/inquiries');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/inquiries');
       if (res.data.success) {
         setInquiries(res.data.inquiries);
       }
@@ -83,7 +83,7 @@ const AdminDashboard = () => {
 
   const fetchContacts = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/contacts');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/contacts');
       if (res.data.success) {
         setContacts(res.data.contacts);
       }
@@ -94,7 +94,7 @@ const AdminDashboard = () => {
 
   const fetchTransactions = useCallback(async () => {
     try {
-      const res = await axios.get('/api/admin/transactions');
+      const res = await axios.get('http://13.51.201.78:5000/api/admin/transactions');
       if (res.data.success) {
         setTransactions(res.data.transactions);
       }
@@ -178,11 +178,11 @@ const AdminDashboard = () => {
 
       let res;
       if (editingProperty) {
-        res = await axios.put(`/api/admin/properties/${editingProperty._id}`, formData, {
+        res = await axios.put(`http://13.51.201.78:5000/api/admin/properties/${editingProperty._id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       } else {
-        res = await axios.post('/api/admin/properties', formData, {
+        res = await axios.post('http://13.51.201.78:5000/api/admin/properties', formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
       }
@@ -204,7 +204,7 @@ const AdminDashboard = () => {
   // Admin User Verification Actions (Verify / Cancel Request)
   const handleSetVerifyUser = async (userId, isVerified) => {
     try {
-      const res = await axios.put(`/api/admin/users/${userId}/verify`, { isVerified });
+      const res = await axios.put(`http://13.51.201.78:5000/api/admin/users/${userId}/verify`, { isVerified });
       if (res.data.success) {
         showNotification(isVerified ? 'success' : 'warning', res.data.message);
         fetchUsers();
@@ -219,7 +219,7 @@ const AdminDashboard = () => {
   const handleDeleteProperty = async (id, title) => {
     if (!window.confirm(`Are you sure you want to delete the property "${title}"?`)) return;
     try {
-      const res = await axios.delete(`/api/admin/properties/${id}`);
+      const res = await axios.delete(`http://13.51.201.78:5000/api/admin/properties/${id}`);
       if (res.data.success) {
         showNotification('success', `Property "${title}" deleted successfully.`);
         fetchProperties();
@@ -232,7 +232,7 @@ const AdminDashboard = () => {
 
   const handleToggleApproveProperty = async (propertyId, isApproved, title) => {
     try {
-      const res = await axios.put(`/api/admin/properties/${propertyId}/verify`, { isApproved });
+      const res = await axios.put(`http://13.51.201.78:5000/api/admin/properties/${propertyId}/verify`, { isApproved });
       if (res.data.success) {
         showNotification(isApproved ? 'success' : 'warning', `Property "${title}" is now ${isApproved ? 'Approved & Live' : 'marked as Pending Verification'}.`);
         fetchProperties();
@@ -245,7 +245,7 @@ const AdminDashboard = () => {
 
   const handleChangeRole = async (userId, newRole) => {
     try {
-      const res = await axios.put(`/api/admin/users/${userId}/role`, { role: newRole });
+      const res = await axios.put(`http://13.51.201.78:5000/api/admin/users/${userId}/role`, { role: newRole });
       if (res.data.success) {
         showNotification('success', res.data.message);
         fetchUsers();
@@ -259,7 +259,7 @@ const AdminDashboard = () => {
   const handleDeleteUser = async (userId, userName) => {
     if (!window.confirm(`Are you sure you want to delete user "${userName}"? This will also remove their properties and inquiries.`)) return;
     try {
-      const res = await axios.delete(`/api/admin/users/${userId}`);
+      const res = await axios.delete(`http://13.51.201.78:5000/api/admin/users/${userId}`);
       if (res.data.success) {
         showNotification('success', res.data.message);
         fetchUsers();
@@ -275,7 +275,7 @@ const AdminDashboard = () => {
   const handleDeleteInquiry = async (id) => {
     if (!window.confirm('Delete this inquiry record?')) return;
     try {
-      const res = await axios.delete(`/api/admin/inquiries/${id}`);
+      const res = await axios.delete(`http://13.51.201.78:5000/api/admin/inquiries/${id}`);
       if (res.data.success) {
         showNotification('success', 'Inquiry deleted successfully.');
         fetchInquiries();
@@ -289,7 +289,7 @@ const AdminDashboard = () => {
   const handleDeleteContact = async (id) => {
     if (!window.confirm('Delete this contact message?')) return;
     try {
-      const res = await axios.delete(`/api/admin/contacts/${id}`);
+      const res = await axios.delete(`http://13.51.201.78:5000/api/admin/contacts/${id}`);
       if (res.data.success) {
         showNotification('success', 'Contact message deleted successfully.');
         fetchContacts();

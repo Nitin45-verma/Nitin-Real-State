@@ -20,7 +20,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        '/api/auth/login',
+        'http://13.51.201.78:5000/api/auth/login',
         JSON.stringify(formData),
         {
           headers: {
@@ -50,7 +50,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        '/api/auth/google',
+        'http://13.51.201.78:5000/api/auth/google',
         { token: response.credential },
         {
           headers: {
@@ -93,7 +93,7 @@ const Login = () => {
 
     try {
       const res = await axios.post(
-        '/api/auth/google',
+        'http://13.51.201.78:5000/api/auth/google',
         {
           token: 'mock_google_token',
           email: mockEmail.trim(),

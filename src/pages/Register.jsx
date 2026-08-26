@@ -20,7 +20,7 @@ const Register = () => {
 
     try {
       const response = await axios.post(
-        '/api/auth/register',
+        'http://13.51.201.78:5000/api/auth/register',
         JSON.stringify(formData),
         {
           headers: {
@@ -54,7 +54,7 @@ const Register = () => {
 
     try {
       const res = await axios.post(
-        '/api/auth/google',
+        'http://13.51.201.78:5000/api/auth/google',
         { 
           token: response.credential,
           role: formData.role 
@@ -104,7 +104,7 @@ const Register = () => {
 
     try {
       const res = await axios.post(
-        '/api/auth/google',
+        'http://13.51.201.78:5000/api/auth/google',
         { 
           token: 'mock_google_token',
           email: mockEmail.trim(),
