@@ -19,15 +19,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        '/api/auth/login',
-        JSON.stringify(formData),
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await axios.post('/api/auth/login', formData);
 
       // Store token and context globally
       login(response.data.token, response.data.user);
