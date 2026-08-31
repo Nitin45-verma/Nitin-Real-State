@@ -206,7 +206,7 @@ const AuraChatbot = () => {
     }
 
     try {
-      // Call Real-Time Backend API (/api/chat) powered by @google/genai & gemini-2.5-flash
+      // Call Real-Time Backend API (/api/chat) powered by @google/genai & gemini-3.6-flash
       const res = await axios.post('/api/chat', {
         message: messageText,
         history: updatedMessages,
