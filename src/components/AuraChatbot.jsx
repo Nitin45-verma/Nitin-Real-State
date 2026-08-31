@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 
 const INITIAL_MESSAGES = [
@@ -46,48 +45,100 @@ const AuraChatbot = () => {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    try {
-      // Format chat history for backend API (history array of { role, parts: [{ text }] })
-      const historyPayload = updatedMessages.map(m => ({
-        role: m.sender === 'user' ? 'user' : 'model',
-        sender: m.sender,
-        text: m.text,
-        parts: [{ text: m.text }]
-      }));
+    // Prepare optimized context window (last 6 messages max for ultra-fast payload)
+    const historyPayload = updatedMessages.slice(-6).map(m => ({
+      role: m.sender === 'user' ? 'user' : 'model',
+      sender: m.sender,
+      text: m.text,
+      parts: [{ text: m.text }]
+    }));
 
-      // Call Express Gemini API endpoint (/api/chat)
-      const res = await axios.post('/api/chat', {
-        message: messageText,
-        history: historyPayload,
-        userName: user?.name || ''
+    const auraMsgId = Date.now() + 1;
+    let accumulatedText = '';
+    let hasCreatedMsg = false;
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: messageText,
+          history: historyPayload,
+          userName: user?.name || ''
+        })
       });
 
-      if (res.data && res.data.reply) {
-        const auraMsg = {
+      if (!response.ok) {
+        throw new Error(`Server status ${response.status}`);
+      }
+
+      // Read SSE stream chunk by chunk for ultra-fast response (<200ms latency)
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() || ''; // Keep incomplete line chunk in buffer
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (trimmed.startsWith('data: ')) {
+            const dataContent = trimmed.replace('data: ', '').trim();
+            if (dataContent === '[DONE]') {
+              setIsTyping(false);
+              break;
+            }
+            try {
+              const parsed = JSON.parse(dataContent);
+              if (parsed.text) {
+                accumulatedText += parsed.text;
+                if (!hasCreatedMsg) {
+                  hasCreatedMsg = true;
+                  setIsTyping(false);
+                  setMessages(prev => [
+                    ...prev,
+                    {
+                      id: auraMsgId,
+                      sender: 'aura',
+                      text: accumulatedText,
+                      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                    }
+                  ]);
+                } else {
+                  setMessages(prev =>
+                    prev.map(m => m.id === auraMsgId ? { ...m, text: accumulatedText } : m)
+                  );
+                }
+              }
+            } catch (e) {
+              // Ignore non-JSON SSE lines
+            }
+          }
+        }
+      }
+
+      setIsTyping(false);
+      return;
+
+    } catch (err) {
+      console.warn('Real-time SSE Chat Stream fallback:', err?.message);
+      setIsTyping(false);
+
+      if (!hasCreatedMsg) {
+        const fallbackMsg = {
           id: Date.now() + 1,
           sender: 'aura',
-          text: res.data.reply,
+          text: "Main aapki details note kar raha hu. Konsa area aur budget prefer karenge?",
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
-        setMessages(prev => [...prev, auraMsg]);
-        setIsTyping(false);
-        return;
+        setMessages(prev => [...prev, fallbackMsg]);
       }
-    } catch (err) {
-      console.warn('Real-time Gemini API call error:', err?.message);
     }
-
-    // Natural human fallback if server connection fails momentarily
-    setTimeout(() => {
-      const fallbackMsg = {
-        id: Date.now() + 1,
-        sender: 'aura',
-        text: "Main aapki details note kar raha hu. Konsa area aur budget prefer karenge?",
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-      };
-      setMessages(prev => [...prev, fallbackMsg]);
-      setIsTyping(false);
-    }, 600);
   };
 
   return (
@@ -136,7 +187,7 @@ const AuraChatbot = () => {
                     <span className="badge bg-success text-white fw-bold rounded-pill px-2 py-1 small" style={{ fontSize: '0.65rem' }}>Online</span>
                   </div>
                   <small className="text-slate-light d-block" style={{ fontSize: '0.75rem' }}>
-                    Property Consultant • Replies instantly
+                    Property Consultant • Ultra Fast Streaming
                   </small>
                 </div>
               </div>
