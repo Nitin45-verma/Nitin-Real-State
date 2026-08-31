@@ -7,20 +7,8 @@ const INITIAL_MESSAGES = [
   {
     id: 1,
     sender: 'aura',
-    text: "👋 Hi! I'm **Aura**, your senior AI Real Estate Assistant at **Nitin Real Estate**.",
+    text: "Hey! Kaise hain aap? Main Nitin Real Estate se Aura hu. Aaj kis tarah ki property dekh rahe hain?",
     timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  },
-  {
-    id: 2,
-    sender: 'aura',
-    text: "How can I assist you today? You can search properties by budget & location, or book an on-site viewing!",
-    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    quickOptions: [
-      "🔍 3-BHK flats under 50 Lakhs",
-      "🏰 Luxury Villas in Noida",
-      "🔑 Sell my property",
-      "📅 Book a property tour"
-    ]
   }
 ];
 
@@ -30,8 +18,6 @@ const AuraChatbot = () => {
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const [bookingStep, setBookingStep] = useState(null); // null | 'select_prop' | 'collect_info'
-  const [bookingData, setBookingData] = useState({ name: '', phone: '', preferredDate: '', propTitle: '' });
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -43,135 +29,6 @@ const AuraChatbot = () => {
       scrollToBottom();
     }
   }, [messages, isTyping, isOpen]);
-
-  // Handle bot intelligent response calculation with strict Dynamic Language Mirroring
-  const generateAuraResponse = (userText) => {
-    const text = userText.toLowerCase();
-
-    // 1. Language Detection Helper
-    const isHindiScript = /[\u0900-\u097F]/.test(userText); // Pure Devanagari Hindi
-    const isHinglish = /mujhe|chahiye|batao|bechna|dekhna|kaise|hisaab|hai|mein|kya|dikhayein|sir|bhai|flats|kitne|under|lakh|crore|dekhni|book|karna|hoga|ke|par/.test(text);
-
-    // 2. Intent Detection
-    const isBooking = text.includes('book') || text.includes('tour') || text.includes('viewing') || text.includes('visit') || text.includes('dekhna') || text.includes('विजिट') || text.includes('बुक');
-    const is3BHK = text.includes('3-bhk') || text.includes('3bhk') || text.includes('50 lakh') || text.includes('50l') || text.includes('50 लाख') || text.includes('flat');
-    const isVilla = text.includes('villa') || text.includes('luxury') || text.includes('house') || text.includes('विला');
-    const isSell = text.includes('sell') || text.includes('list') || text.includes('my property') || text.includes('bechna') || text.includes('बेचना') || text.includes('लिस्ट');
-    const isLegal = text.includes('legal') || text.includes('tax') || text.includes('deed') || text.includes('document') || text.includes('कागजात');
-
-    // === HINDI SCRIPT (Devanagari) RESPONSES ===
-    if (isHindiScript) {
-      if (isBooking) {
-        return {
-          text: "मैं आपकी प्राइवेट प्रॉपर्टी विजिट बुक करने में मदद कर सकती हूँ! 📅\n\nकृपया अपना पसंदीदा **दिन/समय** और **फ़ोन नंबर** साझा करें, हमारे सीनियर एजेंट 15 मिनट में आपसे संपर्क करके अपॉइंटमेंट कंफर्म करेंगे।",
-          quickOptions: ["कल शाम 4 बजे", "इस वीकेंड (शनिवार 11 बजे)", "एजेंट से सीधा संपर्क करें"]
-        };
-      }
-      if (is3BHK) {
-        return {
-          text: "आपके **₹50 लाख के बजट** में सबसे बेहतरीन **3-BHK फ्लैट्स** उपलब्ध हैं:\n\n• **सनराइज रेजीडेंसी (Ref #SR-302)** — **₹45.5 लाख** | 3 BHK, 2 बाथ | सेक्टर 62, नोएडा\n  - कवर पार्किंग, 2 बालकनी, मॉड्यूलर किचन, 24/7 सुरक्षा।\n\n• **ग्रीन वैली हाइट्स (Ref #GV-108)** — **₹48.0 लाख** | 3 BHK, 3 बाथ | ग्रेटर नोएडा वेस्ट\n  - गेटेड सोसाइटी, क्लब हाउस, पूल एक्सेस, मेट्रो पास।\n\nक्या आप इसके लिए साइट विजिट बुक करना चाहेंगे या फ्लोर प्लान देखना चाहते हैं?",
-          quickOptions: ["📅 सनराइज रेजीडेंसी की विजिट बुक करें", "📅 ग्रीन वैली की विजिट बुक करें", "2-BHK विकल्प दिखाएं"]
-        };
-      }
-      if (isVilla) {
-        return {
-          text: "यहाँ प्राइम सेक्टर्स में उपलब्ध **लक्जरी विला** लिस्टिंग हैं:\n\n• **इम्पीरियल गोल्फ एस्टेट (Ref #IGE-901)** — **₹3.20 करोड़** | 5 BHK विला | सेक्टर 128, नोएडा\n  - प्राइवेट पूल, गार्डन, 3-कार गैराज, स्मार्ट होम।\n\n• **रॉयल पाल्म्स विला (Ref #RP-405)** — **₹1.85 करोड़** | 4 BHK डुप्लेक्स | यमुना एक्सप्रेसवे\n  - कॉर्नर प्लॉट, टेरेस गार्डन, डबल-हाइट सीलिंग।\n\nक्या आप प्राइवेट साइट विजिट शेड्यूल करना चाहते हैं?",
-          quickOptions: ["📅 विला विजिट बुक करें", "लोकेशन डिटेल्स पूछें"]
-        };
-      }
-      if (isSell) {
-        return {
-          text: "**नितिन रियल एस्टेट** पर अपनी संपत्ति लिस्ट करना बेहद आसान है! 🔑\n\nहम आपकी लिस्टिंग को सत्यापित खरीदारों से जोड़ते हैं। आप हमारे **Sell** पेज पर विवरण जमा कर सकते हैं या एजेंट कॉल बैक के लिए अपना फोन नंबर साझा कर सकते हैं।",
-          quickOptions: ["Sell पेज पर जाएं", "एजेंट कॉल बैक रिक्वेस्ट करें"]
-        };
-      }
-      if (isLegal) {
-        return {
-          text: "जबकि मैं बाजार का सही अनुमान प्रदान कर सकती हूँ, हमारे लाइसेंस प्राप्त प्रॉपर्टी वकील और सीनियर एजेंट आपके साथ सटीक टैक्स, रजिस्ट्री और डीड विवरण की समीक्षा कर सकते हैं।",
-          quickOptions: ["लीगल टीम से जुड़ें", "सपोर्ट पर कॉल करें"]
-        };
-      }
-      return {
-        text: "मैं यह विवरण हमारे प्रॉपर्टी कंसल्टेंट से चेक करके आपको कॉल बैक करवा देती हूँ। क्या आपका फ़ोन नंबर मिल सकता है?",
-        quickOptions: ["फोन नंबर साझा करें", "बजट 50 लाख से कम", "विला विकल्प दिखाएं"]
-      };
-    }
-
-    // === HINGLISH (Roman Hindi) RESPONSES ===
-    if (isHinglish) {
-      if (isBooking) {
-        return {
-          text: "Main aapki private viewing book karne me help kar sakti hu! 📅\n\nKripya apna preferred **Day/Time** aur **Phone Number** share karein, hamare senior agent 15 minute me confirm karenge.",
-          quickOptions: ["Kal Shaam 4 PM", "Is Weekend (Sat 11 AM)", "Agent se direct connect karein"]
-        };
-      }
-      if (is3BHK) {
-        return {
-          text: "Aapke budget **₹50 Lakhs ke under** ye top verified **3-BHK flats** available hain:\n\n• **Sunrise Residency (Ref #SR-302)** — **₹45.5 Lakhs** | 3 BHK, 2 Baths | Sector 62, Noida\n  - Covered parking, 2 balconies, modular kitchen, 24/7 security.\n\n• **Green Valley Heights (Ref #GV-108)** — **₹48.0 Lakhs** | 3 BHK, 3 Baths | Greater Noida West\n  - Gated society, clubhouse access, metro near.\n\nKya aap inka site visit book karna chahenge ya full floor plan dekhna chahenge?",
-          quickOptions: ["📅 Sunrise Residency visit book karein", "📅 Green Valley visit book karein", "2-BHK options dikhayein"]
-        };
-      }
-      if (isVilla) {
-        return {
-          text: "Ye rahe top prime locations ke **Luxury Villa listings**:\n\n• **Imperial Golf Estate (Ref #IGE-901)** — **₹3.20 Cr** | 5 BHK Villa | Sector 128, Noida\n  - Private pool, lawn, 3-car garage, smart home.\n\n• **Royal Palms Villa (Ref #RP-405)** — **₹1.85 Cr** | 4 BHK Duplex | Yamuna Expressway\n  - Corner plot, terrace garden.\n\nKya aap private walkthrough tour schedule karna chahenge?",
-          quickOptions: ["📅 Villa Tour Book Karein", "Location details puchein"]
-        };
-      }
-      if (isSell) {
-        return {
-          text: "**Nitin Real Estate** par apna property list karna bahut aasan hai! 🔑\n\nHum aapki listing ko verified buyers se connect karte hain. Aap hamare **Sell** page par details submit kar sakte hain ya apna number share karein agent callback ke liye.",
-          quickOptions: ["Sell Page Par Jayein", "Request Agent Callback"]
-        };
-      }
-      if (isLegal) {
-        return {
-          text: "Main standard market estimates bata sakti hu, lekin exact tax, registry aur deed documents hamare licensed property attorneys aur senior agents aapke saath review karenge.",
-          quickOptions: ["Legal Team Se Connect Karein", "Support Direct Call"]
-        };
-      }
-      return {
-        text: "Main ye detail hamare property consultant se check karke aapko call back karwa deta hu. Aapka phone number mil sakta hai?",
-        quickOptions: ["Share Mobile Number", "Under ₹50 Lakhs", "Luxury Villas"]
-      };
-    }
-
-    // === ENGLISH RESPONSES ===
-    if (isBooking) {
-      return {
-        text: "I would be happy to schedule a private viewing for you! 📅\n\nPlease let me know your preferred **Day/Time** and your **Phone Number**, and our senior agent will confirm your appointment within 15 minutes.",
-        quickOptions: ["Tomorrow at 4 PM", "This Weekend (Sat 11 AM)", "Connect with Agent directly"]
-      };
-    }
-    if (is3BHK) {
-      return {
-        text: "Here are top verified **3-BHK flats under ₹50 Lakhs** available right now:\n\n• **Sunrise Residency (Ref #SR-302)** — **₹45.5 Lakhs** | 3 BHK, 2 Baths | Sector 62, Noida\n  - Covered parking, 2 balconies, modular kitchen, 24/7 security.\n\n• **Green Valley Heights (Ref #GV-108)** — **₹48.0 Lakhs** | 3 BHK, 3 Baths | Greater Noida West\n  - Gated society, clubhouse, pool access, near metro.\n\nWould you like full photos and floor plans, or to book an on-site visit?",
-        quickOptions: ["📅 Book viewing for Sunrise Residency", "📅 Book viewing for Green Valley", "Show 2-BHK options instead"]
-      };
-    }
-    if (isVilla) {
-      return {
-        text: "Here are featured **Luxury Villa listings** in top prime sectors:\n\n• **Imperial Golf Estate (Ref #IGE-901)** — **₹3.20 Cr** | 5 BHK Villa | Sector 128, Noida\n  - Private pool, landscaped lawn, 3-car garage, smart home automation.\n\n• **Royal Palms Villa (Ref #RP-405)** — **₹1.85 Cr** | 4 BHK Duplex | Yamuna Expressway\n  - Corner plot, terrace garden, double-height ceiling.\n\nWould you like to schedule a private walkthrough tour?",
-        quickOptions: ["📅 Book Villa Walkthrough", "Ask for location details"]
-      };
-    }
-    if (isSell) {
-      return {
-        text: "Listing your property with **Nitin Real Estate** is fast & easy! 🔑\n\nWe connect your listing with verified buyers, manage inquiries, and ensure hassle-free closing. You can submit your property details directly on our **Sell** page or leave your phone number here for an immediate agent callback.",
-        quickOptions: ["Go to Sell Page", "Request Agent Callback"]
-      };
-    }
-    if (isLegal) {
-      return {
-        text: "While I can provide standard market estimates, our licensed property attorneys and senior legal advisors can review exact tax, deed, and registration details with you.",
-        quickOptions: ["Connect with Legal Team", "Call Support Direct"]
-      };
-    }
-
-    return {
-      text: "I will check this detail with our senior property consultant and request a callback for you. May I have your mobile number?",
-      quickOptions: ["Share Mobile Number", "Under ₹50 Lakhs", "Luxury Villas"]
-    };
-  };
 
   const handleSendMessage = async (textToSend) => {
     const messageText = textToSend || inputValue;
@@ -189,27 +46,19 @@ const AuraChatbot = () => {
     if (!textToSend) setInputValue('');
     setIsTyping(true);
 
-    // Automatically detect phone number in message and trigger POST /api/leads for Admin alert
-    const phoneMatch = messageText.match(/\b[6-9]\d{9}\b/) || messageText.match(/\b\d{10}\b/);
-    if (phoneMatch) {
-      const capturedPhone = phoneMatch[0];
-      try {
-        await axios.post('/api/leads', {
-          name: user?.name || 'Website Visitor',
-          phone: capturedPhone,
-          message: messageText
-        });
-        console.log('📌 Lead automatically captured & sent to /api/leads:', capturedPhone);
-      } catch (leadErr) {
-        console.warn('Lead capture trigger silent fallback:', leadErr?.message);
-      }
-    }
-
     try {
-      // Call Real-Time Backend API (/api/chat) powered by @google/genai & gemini-3.6-flash
+      // Format chat history for backend API (history array of { role, parts: [{ text }] })
+      const historyPayload = updatedMessages.map(m => ({
+        role: m.sender === 'user' ? 'user' : 'model',
+        sender: m.sender,
+        text: m.text,
+        parts: [{ text: m.text }]
+      }));
+
+      // Call Express Gemini API endpoint (/api/chat)
       const res = await axios.post('/api/chat', {
         message: messageText,
-        history: updatedMessages,
+        history: historyPayload,
         userName: user?.name || ''
       });
 
@@ -225,26 +74,20 @@ const AuraChatbot = () => {
         return;
       }
     } catch (err) {
-      console.warn('Real-time Gemini API call fallback to client rule engine:', err?.message);
+      console.warn('Real-time Gemini API call error:', err?.message);
     }
 
-    // Fallback response if API endpoint or key is unavailable
+    // Natural human fallback if server connection fails momentarily
     setTimeout(() => {
-      const response = generateAuraResponse(messageText);
-      const auraMsg = {
+      const fallbackMsg = {
         id: Date.now() + 1,
         sender: 'aura',
-        text: response.text,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        quickOptions: response.quickOptions
+        text: "Main aapki details note kar raha hu. Konsa area aur budget prefer karenge?",
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
-      setMessages(prev => [...prev, auraMsg]);
+      setMessages(prev => [...prev, fallbackMsg]);
       setIsTyping(false);
     }, 600);
-  };
-
-  const handleQuickOptionClick = (option) => {
-    handleSendMessage(option);
   };
 
   return (
@@ -258,12 +101,12 @@ const AuraChatbot = () => {
         aria-label="Toggle Aura AI Chat"
       >
         <div className="position-relative d-flex align-items-center justify-content-center">
-          <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-robot'} fs-4 text-dark`}></i>
+          <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'} fs-4 text-dark`}></i>
           {!isOpen && <span className="aura-online-indicator"></span>}
         </div>
         {!isOpen && (
           <span className="aura-badge-label ms-2 d-none d-sm-inline-block fw-bold">
-            Chat with Aura AI
+            Chat with Real Estate Consultant
           </span>
         )}
       </motion.button>
@@ -283,17 +126,17 @@ const AuraChatbot = () => {
               <div className="d-flex align-items-center gap-3">
                 <div className="position-relative">
                   <div className="aura-avatar-circle bg-warning bg-opacity-20 border border-warning border-opacity-40 p-2 rounded-circle text-warning d-flex align-items-center justify-content-center" style={{ width: '42px', height: '42px' }}>
-                    <i className="bi bi-robot fs-4"></i>
+                    <i className="bi bi-person-fill fs-4"></i>
                   </div>
                   <span className="aura-online-indicator"></span>
                 </div>
                 <div>
                   <div className="d-flex align-items-center gap-2 mb-1">
-                    <span className="fw-bold text-gold-gradient fs-6">Aura AI Assistant</span>
-                    <span className="badge bg-warning text-dark fw-bold rounded-pill px-2 py-1 small" style={{ fontSize: '0.65rem' }}>AI Senior Agent</span>
+                    <span className="fw-bold text-gold-gradient fs-6">Aura — Nitin Real Estate</span>
+                    <span className="badge bg-success text-white fw-bold rounded-pill px-2 py-1 small" style={{ fontSize: '0.65rem' }}>Online</span>
                   </div>
                   <small className="text-slate-light d-block" style={{ fontSize: '0.75rem' }}>
-                    Nitin Real Estate • Online 24/7
+                    Property Consultant • Replies instantly
                   </small>
                 </div>
               </div>
@@ -301,14 +144,14 @@ const AuraChatbot = () => {
                 <button
                   onClick={() => setMessages(INITIAL_MESSAGES)}
                   className="btn btn-sm btn-link text-slate-light hover-text-warning p-1"
-                  title="Clear Chat"
+                  title="Reset Conversation"
                 >
                   <i className="bi bi-arrow-counterclockwise fs-5"></i>
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
                   className="btn btn-sm btn-link text-slate-light hover-text-danger p-1"
-                  title="Minimize Chat"
+                  title="Close Chat"
                 >
                   <i className="bi bi-x-lg fs-5"></i>
                 </button>
@@ -316,7 +159,7 @@ const AuraChatbot = () => {
             </div>
 
             {/* Message Body */}
-            <div className="aura-chat-body p-3 overflow-y-auto">
+            <div className="aura-chat-body p-3 overflow-y-auto" style={{ maxHeight: '380px', minHeight: '280px' }}>
               {messages.map((msg) => (
                 <div
                   key={msg.id}
@@ -330,31 +173,11 @@ const AuraChatbot = () => {
                     }`}
                     style={{ fontSize: '0.9rem', lineHeight: '1.5' }}
                   >
-                    <div style={{ whiteSpace: 'pre-line' }}>
-                      {msg.text.split('**').map((part, i) =>
-                        i % 2 === 1 ? <strong key={i} className={msg.sender === 'aura' ? 'text-warning' : 'fw-bold'}>{part}</strong> : part
-                      )}
-                    </div>
+                    <div style={{ whiteSpace: 'pre-line' }}>{msg.text}</div>
                   </div>
                   <span className="text-slate-light mt-1 px-1" style={{ fontSize: '0.68rem' }}>
                     {msg.timestamp}
                   </span>
-
-                  {/* Quick Pills */}
-                  {msg.quickOptions && msg.quickOptions.length > 0 && (
-                    <div className="d-flex flex-wrap gap-2 mt-2 max-w-90">
-                      {msg.quickOptions.map((opt, i) => (
-                        <button
-                          key={i}
-                          onClick={() => handleQuickOptionClick(opt)}
-                          className="btn btn-outline-warning btn-sm rounded-pill px-3 py-1 text-start"
-                          style={{ fontSize: '0.78rem', background: 'rgba(212, 175, 55, 0.05)' }}
-                        >
-                          {opt}
-                        </button>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
 
@@ -363,7 +186,7 @@ const AuraChatbot = () => {
                 <div className="d-flex align-items-center gap-2 mb-3">
                   <div className="bg-dark bg-opacity-70 border border-secondary border-opacity-30 p-2 px-3 rounded-4 text-warning small d-flex align-items-center gap-2">
                     <span className="spinner-grow spinner-grow-sm text-warning" role="status"></span>
-                    <span>Aura is typing response...</span>
+                    <span>Aura is typing...</span>
                   </div>
                 </div>
               )}
@@ -382,7 +205,7 @@ const AuraChatbot = () => {
                 <input
                   type="text"
                   className="form-control bg-dark text-light border-secondary shadow-none rounded-pill px-3 py-2"
-                  placeholder="Ask Aura about budget, locations, flats..."
+                  placeholder="Type a message (e.g., 2 BHK in Noida under 50L)..."
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   style={{ fontSize: '0.88rem' }}
