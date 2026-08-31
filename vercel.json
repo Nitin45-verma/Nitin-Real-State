@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "http://13.51.201.78:5000/api/:path*"
+      "destination": "https://real-state-backend-g6nt.onrender.com/api/:path*"
     },
     {
       "source": "/uploads/:path*",
-      "destination": "http://13.51.201.78:5000/uploads/:path*"
+      "destination": "https://real-state-backend-g6nt.onrender.com/uploads/:path*"
     },
     {
       "source": "/(.*)",

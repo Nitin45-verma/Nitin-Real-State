@@ -6,9 +6,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import './index.css';
 
-// Axios uses relative routes (/api) handled by Vercel rewrites in production and Vite proxy in development
-if (import.meta.env.VITE_API_URL && import.meta.env.VITE_API_URL.startsWith('https://')) {
-  axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+// Set default baseURL for Axios to Render production backend URL
+const apiBaseUrl = import.meta.env.VITE_API_URL || 'https://real-state-backend-g6nt.onrender.com';
+if (apiBaseUrl) {
+  axios.defaults.baseURL = apiBaseUrl;
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
