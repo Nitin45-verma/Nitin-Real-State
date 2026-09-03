@@ -288,6 +288,7 @@ const Buy = () => {
                     <div className="img-wrapper">
                       <img 
                         src={prop.image ? getImageUrl(prop.image) : fallbackImages[idx % fallbackImages.length]} 
+                        className="card-img-top h-100 w-100 object-fit-cover"
                         onError={(e) => {
                           e.target.onerror = null;
                           e.target.src = fallbackImages[idx % fallbackImages.length];

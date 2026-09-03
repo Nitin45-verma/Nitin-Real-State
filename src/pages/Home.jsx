@@ -175,6 +175,7 @@ const Home = () => {
                   <div className="img-wrapper">
                     <img 
                       src={prop.img} 
+                      className="card-img-top h-100 w-100 object-fit-cover"
                       alt={prop.title} 
                     />
                     <div className="img-overlay"></div>
