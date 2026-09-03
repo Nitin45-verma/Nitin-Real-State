@@ -1,0 +1,18 @@
+.property-chat-modal {
+  position: fixed;
+  bottom: 24px;
+  right: 100px;
+  width: 350px;
+  z-index: 1050;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 576px) {
+  .property-chat-modal {
+    right: 16px;
+    left: 16px;
+    width: auto;
+    bottom: 90px;
+  }
+}

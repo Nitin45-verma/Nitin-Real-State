@@ -152,14 +152,9 @@ const AuraChatbot = () => {
         aria-label="Toggle Aura AI Chat"
       >
         <div className="position-relative d-flex align-items-center justify-content-center">
-          <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'} fs-4 text-dark`}></i>
+          <i className={`bi ${isOpen ? 'bi-x-lg' : 'bi-chat-dots-fill'} fs-3 text-dark`}></i>
           {!isOpen && <span className="aura-online-indicator"></span>}
         </div>
-        {!isOpen && (
-          <span className="aura-badge-label ms-2 d-none d-sm-inline-block fw-bold">
-            Chat with Real Estate Consultant
-          </span>
-        )}
       </motion.button>
 
       {/* Floating Chat Modal */}

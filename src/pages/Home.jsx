@@ -168,27 +168,26 @@ const Home = () => {
             {featuredProperties.map(prop => (
               <motion.div key={prop.id} className="col-lg-4 col-md-6" variants={itemVariant}>
                 <motion.div 
-                  className="card card-luxury h-100 shadow-sm"
-                  whileHover={{ y: -12, scale: 1.02 }}
+                  className="premium-property-card h-100"
+                  whileHover={{ y: -10 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <div style={{ overflow: 'hidden', height: '260px', position: 'relative' }}>
-                    <motion.img 
-                      whileHover={{ scale: 1.08 }}
-                      transition={{ duration: 0.6 }}
+                  <div className="img-wrapper">
+                    <img 
                       src={prop.img} 
-                      className="card-img-top h-100 w-100 object-fit-cover" 
                       alt={prop.title} 
                     />
-                    <span className="badge badge-glow-gold position-absolute top-0 end-0 m-3 px-3 py-2 rounded-pill fw-bold">
-                      {prop.tag}
-                    </span>
+                    <div className="img-overlay"></div>
+                    <div className="prop-badges">
+                      <span className="badge-glass-gold">{prop.tag}</span>
+                    </div>
                   </div>
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title fw-bold fs-4 mb-2">{prop.title}</h5>
-                    <p className="text-muted small mb-4"><i className="bi bi-geo-alt-fill text-warning me-1"></i>{prop.location}</p>
-                    <div className="mt-auto d-flex justify-content-between align-items-center pt-3 border-top">
-                      <span className="price-tag">{prop.price}</span>
+                  <div className="card-content">
+                    <h5 className="prop-title">{prop.title}</h5>
+                    <p className="prop-location"><i className="bi bi-geo-alt-fill"></i>{prop.location}</p>
+                    <div className="prop-divider"></div>
+                    <div className="prop-footer">
+                      <span className="prop-price">{prop.price}</span>
                       <Link to="/buy" className="btn btn-luxury-primary">
                         View Estate
                       </Link>

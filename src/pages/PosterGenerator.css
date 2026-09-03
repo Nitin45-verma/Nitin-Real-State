@@ -1,0 +1,109 @@
+/* AI Poster Generator Styling */
+.poster-generator-container {
+  background: linear-gradient(135deg, #0b0f19 0%, #111827 50%, #0f172a 100%);
+  color: #f3f4f6;
+  min-height: 100vh;
+  padding-top: 80px;
+  padding-bottom: 50px;
+}
+
+.poster-glass-card {
+  background: rgba(17, 24, 39, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.poster-header-title {
+  background: linear-gradient(135deg, #f59e0b 0%, #d4af37 50%, #fef08a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.preset-chip {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #d1d5db;
+  border-radius: 30px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.preset-chip:hover, .preset-chip.active {
+  background: linear-gradient(135deg, #d4af37 0%, #b48a1d 100%);
+  border-color: #fef08a;
+  color: #0b0f19;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+}
+
+.template-card {
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.template-card:hover {
+  border-color: rgba(212, 175, 55, 0.5);
+  transform: translateY(-2px);
+}
+
+.template-card.active {
+  border-color: #d4af37;
+  background: rgba(212, 175, 55, 0.12);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.25);
+}
+
+.canvas-preview-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 540px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+  border: 2px solid rgba(212, 175, 55, 0.4);
+  background: #000;
+}
+
+.canvas-element {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+.form-control-dark {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #fff;
+  border-radius: 8px;
+}
+
+.form-control-dark:focus {
+  background: rgba(0, 0, 0, 0.6);
+  border-color: #d4af37;
+  color: #fff;
+  box-shadow: 0 0 0 0.25rem rgba(212, 175, 55, 0.25);
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, #d4af37 0%, #b48a1d 100%);
+  color: #000;
+  font-weight: 700;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  background: linear-gradient(135deg, #f59e0b 0%, #d4af37 100%);
+  box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+  color: #000;
+}

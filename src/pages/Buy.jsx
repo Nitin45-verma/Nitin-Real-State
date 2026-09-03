@@ -4,7 +4,13 @@ import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import InquiryModal from '../components/InquiryModal';
 import PaymentModal from '../components/PaymentModal';
+import EMICalculator from '../components/EMICalculator';
+import CompareDrawer from '../components/CompareDrawer';
+import VisitBookingModal from '../components/VisitBookingModal';
+import PropertiesMap from '../components/PropertiesMap';
+import PropertyChat from '../components/PropertyChat';
 import { getImageUrl } from '../utils/imageUrl';
+import { Link } from 'react-router-dom';
 import prop1 from '../assets/prop1.png';
 import prop2 from '../assets/prop2.png';
 import prop3 from '../assets/prop3.png';
@@ -32,6 +38,8 @@ const itemVariant = {
 // Fallback images for our gallery
 const fallbackImages = [prop1, prop2, prop3, heroBg];
 
+const MAX_COMPARE = 3;
+
 const Buy = () => {
   const { user } = useContext(AuthContext);
   const [properties, setProperties] = useState([]);
@@ -41,6 +49,14 @@ const Buy = () => {
   const [paymentModalOpen, setPaymentModalOpen] = useState(false);
   const [paymentProperty, setPaymentProperty] = useState(null);
 
+  // --- Visit Booking ---
+  const [visitModalOpen, setVisitModalOpen] = useState(false);
+  const [visitProperty, setVisitProperty] = useState(null);
+
+  // --- Compare ---
+  const [compareList, setCompareList] = useState([]);
+  const [viewMode, setViewMode] = useState('grid');
+  const [chatProperty, setChatProperty] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedType, setSelectedType] = useState('All');
 
@@ -138,6 +154,27 @@ const Buy = () => {
     }
   };
 
+  // --- Compare handlers ---
+  const toggleCompare = (prop) => {
+    setCompareList((prev) => {
+      if (prev.includes(prop._id)) return prev.filter(id => id !== prop._id);
+      if (prev.length >= MAX_COMPARE) {
+        alert(`You can compare up to ${MAX_COMPARE} properties at a time.`);
+        return prev;
+      }
+      return [...prev, prop._id];
+    });
+  };
+
+  const removeFromCompare = (id) => setCompareList((prev) => prev.filter(i => i !== id));
+  const clearCompare = () => setCompareList([]);
+
+  // --- Visit booking handlers ---
+  const openVisit = (prop) => {
+    setVisitProperty(prop);
+    setVisitModalOpen(true);
+  };
+
   return (
     <motion.div
       variants={pageVariants}
@@ -200,6 +237,24 @@ const Buy = () => {
             ))}
           </div>
         </div>
+
+        {/* View Mode Toggle */}
+        <div className="col-12 mt-4 text-center">
+          <div className="btn-group shadow-sm bg-white rounded-pill p-1 border">
+            <button 
+              className={`btn rounded-pill px-4 fw-semibold ${viewMode === 'list' ? 'btn-dark text-white' : 'btn-white text-muted'}`}
+              onClick={() => setViewMode('list')}
+            >
+              <i className="bi bi-grid-fill me-2"></i> List View
+            </button>
+            <button 
+              className={`btn rounded-pill px-4 fw-semibold ${viewMode === 'map' ? 'btn-dark text-white' : 'btn-white text-muted'}`}
+              onClick={() => setViewMode('map')}
+            >
+              <i className="bi bi-map-fill me-2"></i> Map View
+            </button>
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -208,6 +263,15 @@ const Buy = () => {
             <span className="visually-hidden">Loading...</span>
           </div>
         </div>
+      ) : viewMode === 'map' ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          className="mb-5"
+        >
+          <PropertiesMap properties={filteredProperties} />
+        </motion.div>
       ) : (
         <motion.div 
           className="row g-4"
@@ -216,84 +280,124 @@ const Buy = () => {
           animate="show"
         >
           <AnimatePresence>
-            {filteredProperties.map((prop, idx) => (
-              <motion.div key={prop._id || idx} className="col-lg-4 col-md-6" variants={itemVariant} layoutId={prop._id} exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}>
-                <div className="card card-luxury h-100">
-                  <div style={{ overflow: 'hidden', height: '220px', position: 'relative' }}>
-                    <motion.img 
-                      whileHover={{ scale: 1.05 }}
-                      transition={{ duration: 0.5 }}
-                      src={prop.image ? getImageUrl(prop.image) : fallbackImages[idx % fallbackImages.length]} 
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = fallbackImages[idx % fallbackImages.length];
-                      }}
-                      className="card-img-top h-100 w-100 object-fit-cover" 
-                      alt={prop.title || 'Property'} 
-                    />
-                    {user && (user.id === prop.user_id || user.id === (prop.user_id && prop.user_id._id)) && (
-                      <button 
-                        onClick={() => handleDelete(prop._id)} 
-                        className="btn btn-danger btn-sm position-absolute"
-                        style={{
-                          top: '15px',
-                          right: '15px',
-                          zIndex: 10,
-                          borderRadius: '50%',
-                          width: '36px',
-                          height: '36px',
-                          padding: '0',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          border: 'none',
-                          boxShadow: '0 4px 12px rgba(220, 53, 69, 0.35)',
-                          background: 'rgba(220, 53, 69, 0.9)',
-                          backdropFilter: 'blur(4px)',
-                          transition: 'all 0.2s ease'
+            {filteredProperties.map((prop, idx) => {
+              const isCompared = compareList.includes(prop._id);
+              return (
+                <motion.div key={prop._id || idx} className="col-lg-4 col-md-6" variants={itemVariant} layoutId={prop._id} exit={{ opacity: 0, scale: 0.8, transition: { duration: 0.3 } }}>
+                  <div className={`premium-property-card h-100 ${isCompared ? 'compare-card-active' : ''}`}>
+                    <div className="img-wrapper">
+                      <img 
+                        src={prop.image ? getImageUrl(prop.image) : fallbackImages[idx % fallbackImages.length]} 
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = fallbackImages[idx % fallbackImages.length];
                         }}
-                        title="Delete Property"
+                        alt={prop.title || 'Property'} 
+                      />
+                      <div className="img-overlay"></div>
+                      <div className="prop-badges">
+                        <span className="badge-glass-dark">{prop.type}</span>
+                        {prop.isVerified && (
+                          <span className="badge-glass-gold"><i className="bi bi-shield-check me-1"></i>Verified</span>
+                        )}
+                      </div>
+
+                      {/* Compare Toggle */}
+                      <button
+                        className={`compare-toggle-btn ${isCompared ? 'compare-toggle-btn--active' : ''}`}
+                        onClick={() => toggleCompare(prop)}
+                        title={isCompared ? 'Remove from compare' : 'Add to compare'}
+                        aria-label={isCompared ? 'Remove from compare' : 'Add to compare'}
+                        style={{ zIndex: 10 }}
                       >
-                        <i className="bi bi-trash-fill fs-6 text-white"></i>
+                        <i className={`bi ${isCompared ? 'bi-check-square-fill' : 'bi-plus-square'} me-1`}></i>
+                        {isCompared ? 'Comparing' : 'Compare'}
                       </button>
-                    )}
-                  </div>
-                  <div className="card-body d-flex flex-column">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <h5 className="card-title fw-bold mb-0">{prop.title}</h5>
-                      <span className="badge bg-dark rounded-pill">{prop.type}</span>
+
+                      {user && (user.id === prop.user_id || user.id === (prop.user_id && prop.user_id._id)) && (
+                        <button 
+                          onClick={() => handleDelete(prop._id)} 
+                          className="btn btn-danger btn-sm position-absolute"
+                          style={{
+                            top: '55px',
+                            right: '15px',
+                            zIndex: 10,
+                            borderRadius: '50%',
+                            width: '36px',
+                            height: '36px',
+                            padding: '0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            border: 'none',
+                            boxShadow: '0 4px 12px rgba(220, 53, 69, 0.35)',
+                            background: 'rgba(220, 53, 69, 0.9)',
+                            backdropFilter: 'blur(4px)',
+                            transition: 'all 0.2s ease'
+                          }}
+                          title="Delete Property"
+                        >
+                          <i className="bi bi-trash-fill fs-6 text-white"></i>
+                        </button>
+                      )}
                     </div>
-                    <p className="text-muted small mb-3"><i className="bi bi-geo-alt-fill me-1"></i>{prop.location}</p>
-                    <p className="card-text text-muted small flex-grow-1">{prop.description}</p>
-                    
-                    <div className="mt-3 pt-3 border-top d-flex flex-column gap-3">
-                      <div className="d-flex justify-content-between align-items-center">
+                    <div className="card-content">
+                      <h5 className="prop-title">{prop.title}</h5>
+                      <p className="prop-location"><i className="bi bi-geo-alt-fill"></i>{prop.location}</p>
+                      <p className="prop-desc">{prop.description}</p>
+                      
+                      <div className="prop-divider"></div>
+                      <div className="prop-footer mb-3">
                         <span className="text-muted small fw-bold text-uppercase" style={{ letterSpacing: '0.5px' }}>Price</span>
-                        <span className="price-tag">₹{prop.price.toLocaleString()}</span>
+                        <span className="prop-price">₹{prop.price.toLocaleString()}</span>
                       </div>
-                      <div className="d-flex gap-2">
-                        <motion.button 
+                      
+                      <div className="d-flex flex-column gap-3 mt-auto">
+                        <div className="d-flex gap-2">
+                          <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => openInquiry(prop)}
+                            className="btn btn-luxury-primary flex-grow-1"
+                          >
+                            <i className="bi bi-whatsapp me-1"></i>Inquire
+                          </motion.button>
+                          <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => openPayment(prop)}
+                            className="btn btn-luxury-secondary flex-grow-1"
+                          >
+                            <i className="bi bi-credit-card me-1"></i>Pay Token
+                          </motion.button>
+                        </div>
+                        <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => openInquiry(prop)}
-                          className="btn btn-luxury-primary flex-grow-1"
+                          onClick={() => openVisit(prop)}
+                          className="btn w-100"
+                          id={`book-visit-${prop._id}`}
+                          style={{ background: 'var(--primary-color)', color: 'white', padding: '0.65rem', borderRadius: '50px', border: '1px solid var(--primary-color)', fontWeight: '600', fontSize: '0.85rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}
                         >
-                          <i className="bi bi-whatsapp me-2"></i>Inquire
+                          <i className="bi bi-calendar2-check me-2"></i>Schedule a Visit
                         </motion.button>
-                        <motion.button 
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => openPayment(prop)}
-                          className="btn btn-luxury-secondary flex-grow-1"
-                        >
-                          <i className="bi bi-credit-card me-2"></i>Pay Token
-                        </motion.button>
+                        {user && user.role === 'Buyer' && (
+                          <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => setChatProperty(prop)}
+                            className="btn w-100"
+                            style={{ background: '#fff', color: 'var(--primary-color)', padding: '0.65rem', borderRadius: '50px', border: '1px solid var(--primary-color)', fontWeight: '600', fontSize: '0.85rem', letterSpacing: '0.5px', textTransform: 'uppercase' }}
+                          >
+                            <i className="bi bi-chat-dots-fill me-2 text-warning"></i>Chat with Seller
+                          </motion.button>
+                        )}
                       </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
             {filteredProperties.length === 0 && (
               <motion.div className="col-12 text-center py-5" variants={itemVariant}>
                 <i className="bi bi-house-door text-muted" style={{fontSize: '3rem'}}></i>
@@ -305,6 +409,7 @@ const Buy = () => {
         </motion.div>
       )}
 
+      {/* ── Modals & Widgets ── */}
       {selectedProperty && (
         <InquiryModal 
           key={selectedProperty._id}
@@ -325,6 +430,31 @@ const Buy = () => {
           onPaymentComplete={handlePaymentComplete}
         />
       )}
+
+      {/* Visit Booking Modal */}
+      <VisitBookingModal
+        isOpen={visitModalOpen}
+        onClose={() => setVisitModalOpen(false)}
+        property={visitProperty}
+      />
+
+      {/* EMI Calculator (FAB) */}
+      <EMICalculator />
+
+      {/* Compare Drawer (sticky bar + modal) */}
+      <AnimatePresence>
+        {compareList.length > 0 && (
+          <CompareDrawer
+            compareList={compareList}
+            properties={properties}
+            onRemove={removeFromCompare}
+            onClear={clearCompare}
+          />
+        )}
+      </AnimatePresence>
+      {/* Property Chat (FAB-like Modal) */}
+      {chatProperty && <PropertyChat property={chatProperty} onClose={() => setChatProperty(null)} />}
+
     </motion.div>
   );
 };

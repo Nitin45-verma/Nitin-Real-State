@@ -41,6 +41,7 @@ const Sell = () => {
       const data = new FormData();
       Object.keys(formData).forEach(key => data.append(key, formData[key]));
       if(image) data.append('image', image);
+      if(formData.ownershipDocument) data.append('ownershipDocument', formData.ownershipDocument);
 
       await axios.post('/api/properties', data, {
         headers: { 'Content-Type': 'multipart/form-data' }
@@ -149,6 +150,11 @@ const Sell = () => {
                 <div className="col-12">
                   <label className="form-label fw-bold">Property Image</label>
                   <input type="file" className="form-control form-control-lg bg-light" accept="image/*" onChange={handleImageChange} required />
+                </div>
+                <div className="col-12">
+                  <label className="form-label fw-bold">Ownership Proof Document (Electricity Bill / Registry Scan)</label>
+                  <input type="file" className="form-control form-control-lg bg-light" accept=".pdf,image/*" onChange={(e) => setFormData({...formData, ownershipDocument: e.target.files[0]})} required />
+                  <small className="text-muted"><i className="bi bi-shield-check me-1"></i>Required for "Verified Property" badge. Admin will review this document.</small>
                 </div>
                 <div className="col-12">
                   <label className="form-label fw-bold">Description</label>

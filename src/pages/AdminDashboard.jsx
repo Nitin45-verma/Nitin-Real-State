@@ -11,6 +11,7 @@ const AdminDashboard = () => {
   const [inquiries, setInquiries] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [notification, setNotification] = useState({ type: '', message: '' });
@@ -24,11 +25,14 @@ const AdminDashboard = () => {
     description: '',
     price: '',
     location: '',
+    latitude: '',
+    longitude: '',
     type: 'Apartment',
     contactInfo: '',
     sellerEmail: ''
   });
   const [imageFile, setImageFile] = useState(null);
+  const [panoramaFile, setPanoramaFile] = useState(null);
 
   const showNotification = (type, message) => {
     setNotification({ type, message });
@@ -103,6 +107,17 @@ const AdminDashboard = () => {
     }
   }, []);
 
+  const fetchBookings = useCallback(async () => {
+    try {
+      const res = await axios.get('/api/admin/bookings');
+      if (res.data.success) {
+        setBookings(res.data.bookings);
+      }
+    } catch (err) {
+      console.error('Failed to fetch bookings:', err);
+    }
+  }, []);
+
   const loadAllData = useCallback(async () => {
     setLoading(true);
     await Promise.all([
@@ -111,10 +126,11 @@ const AdminDashboard = () => {
       fetchUsers(),
       fetchInquiries(),
       fetchContacts(),
-      fetchTransactions()
+      fetchTransactions(),
+      fetchBookings()
     ]);
     setLoading(false);
-  }, [fetchStats, fetchProperties, fetchUsers, fetchInquiries, fetchContacts, fetchTransactions]);
+  }, [fetchStats, fetchProperties, fetchUsers, fetchInquiries, fetchContacts, fetchTransactions, fetchBookings]);
 
   useEffect(() => {
     let isMounted = true;
@@ -135,11 +151,14 @@ const AdminDashboard = () => {
       description: '',
       price: '',
       location: '',
+      latitude: '',
+      longitude: '',
       type: 'Apartment',
       contactInfo: '',
       sellerEmail: ''
     });
     setImageFile(null);
+    setPanoramaFile(null);
     setShowPropertyModal(true);
   };
 
@@ -150,11 +169,14 @@ const AdminDashboard = () => {
       description: property.description || '',
       price: property.price || '',
       location: property.location || '',
+      latitude: property.latitude || '',
+      longitude: property.longitude || '',
       type: property.type || 'Apartment',
       contactInfo: property.contactInfo || '',
       sellerEmail: property.user_id?.email || ''
     });
     setImageFile(null);
+    setPanoramaFile(null);
     setShowPropertyModal(true);
   };
 
@@ -169,11 +191,17 @@ const AdminDashboard = () => {
       formData.append('location', propertyForm.location);
       formData.append('type', propertyForm.type);
       formData.append('contactInfo', propertyForm.contactInfo);
+      if (propertyForm.latitude) formData.append('latitude', propertyForm.latitude);
+      if (propertyForm.longitude) formData.append('longitude', propertyForm.longitude);
+      
       if (propertyForm.sellerEmail) {
         formData.append('sellerEmail', propertyForm.sellerEmail);
       }
       if (imageFile) {
         formData.append('image', imageFile);
+      }
+      if (panoramaFile) {
+        formData.append('panoramaImage', panoramaFile);
       }
 
       let res;
@@ -216,6 +244,16 @@ const AdminDashboard = () => {
   };
 
   // Admin Actions
+  const handleToggleVerification = async (id, currentStatus) => {
+    try {
+      await axios.put(`/api/properties/verify/${id}`, { isVerified: !currentStatus });
+      fetchProperties();
+      showNotification('success', 'Property verification status updated successfully!');
+    } catch (error) {
+      showNotification('danger', 'Failed to update property verification');
+    }
+  };
+
   const handleDeleteProperty = async (id, title) => {
     if (!window.confirm(`Are you sure you want to delete the property "${title}"?`)) return;
     try {
@@ -332,6 +370,38 @@ const AdminDashboard = () => {
     t.status?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const filteredBookings = bookings.filter(b =>
+    b.buyerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.phone?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.propertyTitle?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    b.status?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleUpdateBookingStatus = async (id, status) => {
+    try {
+      const res = await axios.put(`/api/admin/bookings/${id}/status`, { status });
+      if (res.data.success) {
+        showNotification('success', `Booking status updated to "${status}".`);
+        fetchBookings();
+      }
+    } catch (err) {
+      showNotification('danger', err.response?.data?.error || 'Failed to update booking status');
+    }
+  };
+
+  const handleDeleteBooking = async (id) => {
+    if (!window.confirm('Delete this booking record?')) return;
+    try {
+      const res = await axios.delete(`/api/admin/bookings/${id}`);
+      if (res.data.success) {
+        showNotification('success', 'Booking deleted.');
+        fetchBookings();
+      }
+    } catch (err) {
+      showNotification('danger', err.response?.data?.error || 'Failed to delete booking');
+    }
+  };
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100 admin-portal-bg text-light">
@@ -342,7 +412,7 @@ const AdminDashboard = () => {
   }
 
   return (
-    <div className="min-vh-100 admin-portal-bg text-light py-5" style={{ paddingTop: '100px' }}>
+    <div className="min-vh-100 admin-portal-bg text-light pb-5" style={{ paddingTop: '100px' }}>
       <div className="container-fluid px-lg-5">
 
         {/* Top Header Banner */}
@@ -454,6 +524,22 @@ const AdminDashboard = () => {
               </div>
             </motion.div>
           </div>
+          <div className="col-12 col-sm-6 col-xl-3">
+            <motion.div whileHover={{ y: -4 }} className="glass-card rounded-4 p-4 h-100">
+              <div className="d-flex align-items-center justify-content-between">
+                <div>
+                  <span className="text-uppercase text-slate-light fw-semibold small letter-spacing-1">Visit Bookings</span>
+                  <h2 className="fw-extrabold mb-1 mt-1 fs-1" style={{ color: '#FB923C' }}>{stats?.totalBookings || 0}</h2>
+                  <div className="small fw-medium" style={{ color: '#FB923C' }}>
+                    <i className="bi bi-calendar2-check me-1"></i>Pending: {bookings.filter(b => b.status === 'Pending Verification').length}
+                  </div>
+                </div>
+                <div className="kpi-icon-wrapper" style={{ background: 'rgba(251,146,60,0.12)', color: '#FB923C' }}>
+                  <i className="bi bi-calendar2-week"></i>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
 
         {/* Tab Navigation & Search Bar */}
@@ -505,6 +591,32 @@ const AdminDashboard = () => {
                 onClick={() => setActiveTab('transactions')}
               >
                 <i className="bi bi-receipt me-2"></i> Transactions ({transactions.length})
+              </button>
+            </li>
+            <li className="nav-item">
+              <button 
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap position-relative ${activeTab === 'bookings' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+                onClick={() => setActiveTab('bookings')}
+              >
+                <i className="bi bi-calendar2-check me-2"></i> Bookings ({bookings.length})
+                {bookings.filter(b => b.status === 'Pending Verification').length > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style={{ fontSize: '0.6rem' }}>
+                    {bookings.filter(b => b.status === 'Pending Verification').length}
+                  </span>
+                )}
+              </button>
+            </li>
+            <li className="nav-item">
+              <button 
+                onClick={() => setActiveTab('verification')} 
+                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap position-relative ${activeTab === 'verification' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
+              >
+                <i className="bi bi-shield-check me-2"></i>Verification Desk
+                {properties.filter(p => p.ownershipDocument && !p.isVerified).length > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-dark" style={{fontSize: '0.65rem'}}>
+                    {properties.filter(p => p.ownershipDocument && !p.isVerified).length}
+                  </span>
+                )}
               </button>
             </li>
           </ul>
@@ -957,6 +1069,189 @@ const AdminDashboard = () => {
           </div>
         )}
 
+        {/* BOOKINGS TAB */}
+        {activeTab === 'verification' && (
+          <motion.div variants={staggerContainer} initial="initial" animate="animate" exit="exit" className="card card-luxury border-0 shadow-lg">
+            <div className="card-header bg-gradient-dark text-white p-4 d-flex justify-content-between align-items-center">
+              <h5 className="mb-0 fw-bold fs-4 d-flex align-items-center">
+                <i className="bi bi-shield-check me-3 text-warning"></i>Document Verification Desk
+              </h5>
+            </div>
+            <div className="card-body p-0">
+              <div className="table-responsive">
+                <table className="table table-hover align-middle mb-0 custom-admin-table">
+                  <thead className="table-light text-uppercase small text-muted">
+                    <tr>
+                      <th className="px-4 py-3">Property</th>
+                      <th className="py-3">Seller</th>
+                      <th className="py-3 text-center">Document</th>
+                      <th className="py-3 text-center">Status</th>
+                      <th className="px-4 py-3 text-end">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {properties.filter(p => p.ownershipDocument).length === 0 ? (
+                      <tr><td colSpan="5" className="text-center py-5 text-muted"><i className="bi bi-folder2-open display-4 d-block mb-3 opacity-50"></i>No properties with uploaded documents found.</td></tr>
+                    ) : (
+                      properties.filter(p => p.ownershipDocument).map(p => (
+                        <motion.tr variants={fadeInUp} key={p._id}>
+                          <td className="px-4 py-3">
+                            <div className="d-flex align-items-center gap-3">
+                              <img src={p.image ? `http://13.51.201.78:5000${p.image}` : "https://via.placeholder.com/50"} alt="Property" className="rounded-3 object-fit-cover shadow-sm border" style={{ width: '50px', height: '50px' }} />
+                              <div>
+                                <div className="fw-bold text-dark">{p.title}</div>
+                                <div className="small text-muted"><i className="bi bi-geo-alt-fill me-1 text-warning"></i>{p.location}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3">
+                            <div className="fw-semibold text-dark">{p.user_id?.name || 'Unknown'}</div>
+                            <div className="small text-muted">{p.user_id?.email || 'No email'}</div>
+                          </td>
+                          <td className="py-3 text-center">
+                            <a href={`http://13.51.201.78:5000${p.ownershipDocument}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-info rounded-pill px-3">
+                              <i className="bi bi-eye-fill me-1"></i> View Document
+                            </a>
+                          </td>
+                          <td className="py-3 text-center">
+                            {p.isVerified ? (
+                              <span className="badge bg-success rounded-pill px-3 py-1 fw-semibold"><i className="bi bi-check-circle-fill me-1"></i>Verified</span>
+                            ) : (
+                              <span className="badge bg-warning text-dark rounded-pill px-3 py-1 fw-semibold"><i className="bi bi-hourglass-split me-1"></i>Pending</span>
+                            )}
+                          </td>
+                          <td className="px-4 py-3 text-end">
+                            <button 
+                              onClick={() => handleToggleVerification(p._id, p.isVerified)} 
+                              className={`btn btn-sm rounded-pill px-3 ${p.isVerified ? 'btn-danger' : 'btn-success'}`}
+                            >
+                              {p.isVerified ? <><i className="bi bi-x-circle me-1"></i>Revoke</> : <><i className="bi bi-check2-all me-1"></i>Approve</>}
+                            </button>
+                          </td>
+                        </motion.tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'bookings' && (
+          <div className="glass-card rounded-4 p-4">
+            <div className="d-flex align-items-center justify-content-between mb-4">
+              <h5 className="fw-bold mb-0 text-gold-gradient">
+                <i className="bi bi-calendar2-check me-2 text-warning"></i>Visit Bookings
+              </h5>
+              <span className="badge rounded-pill px-3 py-2" style={{ background: 'rgba(251,146,60,0.15)', color: '#FB923C', border: '1px solid rgba(251,146,60,0.3)' }}>
+                {bookings.filter(b => b.status === 'Pending Verification').length} Pending
+              </span>
+            </div>
+            {filteredBookings.length === 0 ? (
+              <div className="text-center py-5 text-slate-light">
+                <i className="bi bi-calendar-x" style={{ fontSize: '2.5rem', opacity: 0.4 }}></i>
+                <p className="mt-3">No visit bookings found.</p>
+              </div>
+            ) : (
+              <div className="table-responsive">
+                <table className="table table-dark table-hover align-middle mb-0" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
+                  <thead>
+                    <tr style={{ borderColor: 'rgba(212,175,55,0.2)' }}>
+                      <th className="text-warning fw-bold small text-uppercase">Buyer</th>
+                      <th className="text-warning fw-bold small text-uppercase">Phone</th>
+                      <th className="text-warning fw-bold small text-uppercase">Property</th>
+                      <th className="text-warning fw-bold small text-uppercase">Date</th>
+                      <th className="text-warning fw-bold small text-uppercase">Slot</th>
+                      <th className="text-warning fw-bold small text-uppercase">Status</th>
+                      <th className="text-warning fw-bold small text-uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBookings.map((b) => (
+                      <tr key={b._id} style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                        <td className="fw-semibold text-white">{b.buyerName}</td>
+                        <td className="text-slate-light">{b.phone}</td>
+                        <td className="text-slate-light" style={{ maxWidth: '160px' }}>
+                          <div className="text-truncate" title={b.propertyTitle || b.propertyId?.title}>
+                            {b.propertyTitle || b.propertyId?.title || '—'}
+                          </div>
+                          {b.propertyId?.location && (
+                            <small className="text-warning opacity-75"><i className="bi bi-geo-alt me-1"></i>{b.propertyId.location}</small>
+                          )}
+                        </td>
+                        <td className="text-slate-light text-nowrap">
+                          <i className="bi bi-calendar3 me-1 text-warning"></i>
+                          {new Date(b.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </td>
+                        <td>
+                          <span className="badge rounded-pill px-3 py-1" style={{
+                            background: b.slot === 'Morning' ? 'rgba(251,191,36,0.15)' : 'rgba(99,102,241,0.15)',
+                            color: b.slot === 'Morning' ? '#FCD34D' : '#A5B4FC',
+                            border: `1px solid ${b.slot === 'Morning' ? 'rgba(251,191,36,0.3)' : 'rgba(99,102,241,0.3)'}`
+                          }}>
+                            <i className={`bi ${b.slot === 'Morning' ? 'bi-sunrise' : 'bi-sunset'} me-1`}></i>
+                            {b.slot}
+                          </span>
+                        </td>
+                        <td>
+                          {b.status === 'Pending Verification' && (
+                            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ background: 'rgba(251,146,60,0.15)', color: '#FB923C', border: '1px solid rgba(251,146,60,0.35)', animation: 'pulseGlow 2s infinite' }}>
+                              ⏳ Pending
+                            </span>
+                          )}
+                          {b.status === 'Confirmed' && (
+                            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ background: 'rgba(34,197,94,0.12)', color: '#4ADE80', border: '1px solid rgba(34,197,94,0.3)' }}>
+                              ✅ Confirmed
+                            </span>
+                          )}
+                          {b.status === 'Cancelled' && (
+                            <span className="badge rounded-pill px-3 py-1 fw-semibold" style={{ background: 'rgba(239,68,68,0.1)', color: '#F87171', border: '1px solid rgba(239,68,68,0.3)' }}>
+                              ❌ Cancelled
+                            </span>
+                          )}
+                        </td>
+                        <td>
+                          <div className="d-flex gap-1 flex-wrap">
+                            {b.status !== 'Confirmed' && (
+                              <button
+                                className="btn btn-sm btn-outline-success rounded-pill px-2 py-1"
+                                style={{ fontSize: '0.72rem' }}
+                                onClick={() => handleUpdateBookingStatus(b._id, 'Confirmed')}
+                                title="Confirm booking"
+                              >
+                                <i className="bi bi-check-lg me-1"></i>Confirm
+                              </button>
+                            )}
+                            {b.status !== 'Cancelled' && (
+                              <button
+                                className="btn btn-sm btn-outline-warning rounded-pill px-2 py-1"
+                                style={{ fontSize: '0.72rem' }}
+                                onClick={() => handleUpdateBookingStatus(b._id, 'Cancelled')}
+                                title="Cancel booking"
+                              >
+                                <i className="bi bi-x-lg me-1"></i>Cancel
+                              </button>
+                            )}
+                            <button
+                              className="btn btn-sm btn-outline-danger rounded-pill px-2 py-1"
+                              style={{ fontSize: '0.72rem' }}
+                              onClick={() => handleDeleteBooking(b._id)}
+                              title="Delete booking"
+                            >
+                              <i className="bi bi-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
       </div>
 
       {/* Property Add/Edit Modal */}
@@ -1080,6 +1375,44 @@ const AdminDashboard = () => {
                           <div className="mt-2 d-flex align-items-center gap-2">
                             <small className="text-slate-light">Current Image:</small>
                             <img src={editingProperty.image} alt="Current" className="rounded-2" style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
+                          </div>
+                        )}
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label text-slate-light fw-semibold">Latitude</label>
+                        <input 
+                          type="number" 
+                          step="any"
+                          className="form-control bg-dark text-light border-secondary"
+                          placeholder="e.g. 26.9124"
+                          value={propertyForm.latitude}
+                          onChange={(e) => setPropertyForm({ ...propertyForm, latitude: e.target.value })}
+                        />
+                      </div>
+                      <div className="col-md-6">
+                        <label className="form-label text-slate-light fw-semibold">Longitude</label>
+                        <input 
+                          type="number" 
+                          step="any"
+                          className="form-control bg-dark text-light border-secondary"
+                          placeholder="e.g. 75.7873"
+                          value={propertyForm.longitude}
+                          onChange={(e) => setPropertyForm({ ...propertyForm, longitude: e.target.value })}
+                        />
+                      </div>
+
+                      <div className="col-12">
+                        <label className="form-label text-slate-light fw-semibold">360° Panorama Image</label>
+                        <input 
+                          type="file" 
+                          className="form-control bg-dark text-light border-secondary"
+                          accept="image/*"
+                          onChange={(e) => setPanoramaFile(e.target.files[0])}
+                        />
+                        {editingProperty?.panoramaImage && !panoramaFile && (
+                          <div className="mt-2 d-flex align-items-center gap-2">
+                            <small className="text-slate-light">Current Panorama:</small>
+                            <img src={editingProperty.panoramaImage} alt="Current" className="rounded-2" style={{ width: '40px', height: '40px', objectFit: 'cover' }} />
                           </div>
                         )}
                       </div>
