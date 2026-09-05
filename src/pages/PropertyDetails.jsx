@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import PropertyChat from '../components/PropertyChat';
 import axios from 'axios';
-import { Pannellum } from 'pannellum-react';
+
 import { MapContainer, TileLayer, Marker, Popup, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import { getImageUrl } from '../utils/imageUrl';
@@ -29,6 +29,29 @@ const PropertyDetails = () => {
   const [property, setProperty] = useState(null);
   const [loading, setLoading] = useState(true);
   const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [id]);
+
+  useEffect(() => {
+    if (property?.panoramaImage && window.pannellum) {
+      const containerId = `panorama-${property._id}`;
+      const container = document.getElementById(containerId);
+      if (container) container.innerHTML = '';
+      
+      window.pannellum.viewer(containerId, {
+        type: 'equirectangular',
+        panorama: getImageUrl(property.panoramaImage),
+        autoLoad: true,
+        pitch: 10,
+        yaw: 180,
+        hfov: 110,
+        showZoomCtrl: true,
+        mouseZoom: true
+      });
+    }
+  }, [property]);
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -113,17 +136,7 @@ const PropertyDetails = () => {
               </div>
               <div className="card-body p-0 bg-dark" style={{ height: '500px' }}>
                 {property.panoramaImage ? (
-                  <Pannellum
-                    width="100%"
-                    height="100%"
-                    image={getImageUrl(property.panoramaImage)}
-                    pitch={10}
-                    yaw={180}
-                    hfov={110}
-                    autoLoad
-                    showZoomCtrl={true}
-                    mouseZoom={true}
-                  />
+                  <div id={`panorama-${property._id}`} style={{ width: '100%', height: '100%' }}></div>
                 ) : (
                   <div className="h-100 w-100 position-relative">
                     <img src={property.image ? getImageUrl(property.image) : "https://via.placeholder.com/800x500?text=No+360+View"} alt={property.title} className="w-100 h-100 object-fit-cover opacity-50" />
