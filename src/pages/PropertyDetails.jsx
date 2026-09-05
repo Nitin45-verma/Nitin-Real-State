@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import PropertyChat from '../components/PropertyChat';
@@ -84,7 +84,7 @@ const PropertyDetails = () => {
               <div className="d-flex align-items-center gap-2 mb-3">
                 <span className="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold fs-6">{property.type}</span>
                 {property.isVerified && (
-                  <span className="badge bg-success text-white px-3 py-2 rounded-pill fw-bold fs-6"><i className="bi bi-shield-check me-1"></i>Verified by Nitin Real Estate</span>
+                  <span className="badge bg-success text-dark px-3 py-2 rounded-pill fw-bold fs-6"><i className="bi bi-shield-check me-1"></i>Verified by Nitin Real Estate</span>
                 )}
               </div>
               <h1 className="display-4 fw-bold mb-2">{property.title}</h1>
@@ -143,11 +143,22 @@ const PropertyDetails = () => {
                 <p className="lead text-muted" style={{ lineHeight: '1.8' }}>{property.description}</p>
                 <div className="mt-4 p-4 bg-light rounded-3 border">
                   <h6 className="fw-bold mb-3">Contact Seller</h6>
-                  <p className="mb-3 fs-5"><i className="bi bi-telephone-fill text-warning me-2"></i> {property.contactInfo}</p>
-                  {user && user.role === 'Buyer' && (
-                    <button onClick={() => setChatOpen(true)} className="btn btn-warning px-4 py-2 rounded-pill fw-bold">
-                      <i className="bi bi-chat-dots-fill me-2"></i>Secure Chat with Seller
-                    </button>
+                  {(!user || user.role === 'Buyer') ? (
+                    <>
+                      <p className="mb-3 fs-5 text-muted"><i className="bi bi-telephone-fill text-warning me-2"></i> +91 ••••• ••••• <span className="badge bg-secondary ms-2" style={{ fontSize: '0.5em' }}>Protected</span></p>
+                      <p className="small text-muted mb-3">Connect securely with the owner to protect yourself from fraud.</p>
+                      {user ? (
+                        <button onClick={() => setChatOpen(true)} className="btn btn-warning px-4 py-2 rounded-pill fw-bold w-100">
+                          <i className="bi bi-chat-dots-fill me-2"></i>Start Secure Chat
+                        </button>
+                      ) : (
+                        <Link to="/login" className="btn btn-outline-warning px-4 py-2 rounded-pill fw-bold w-100">
+                          <i className="bi bi-box-arrow-in-right me-2"></i>Login to Chat
+                        </Link>
+                      )}
+                    </>
+                  ) : (
+                    <p className="mb-3 fs-5"><i className="bi bi-telephone-fill text-warning me-2"></i> {property.contactInfo}</p>
                   )}
                 </div>
               </div>

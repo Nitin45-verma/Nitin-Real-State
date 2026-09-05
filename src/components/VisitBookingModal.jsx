@@ -18,8 +18,11 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 const DAY_LABELS = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 
 const VisitBookingModal = ({ isOpen, onClose, property }) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const today = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    return d;
+  }, []);
 
   const [calYear, setCalYear] = useState(today.getFullYear());
   const [calMonth, setCalMonth] = useState(today.getMonth());
@@ -31,8 +34,11 @@ const VisitBookingModal = ({ isOpen, onClose, property }) => {
   const [successMsg, setSuccessMsg] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
 
-  const maxDate = new Date(today);
-  maxDate.setMonth(maxDate.getMonth() + 3);
+  const maxDate = useMemo(() => {
+    const d = new Date(today);
+    d.setMonth(d.getMonth() + 3);
+    return d;
+  }, [today]);
 
   const calNavPrev = () => {
     if (calMonth === 0) { setCalYear(y => y - 1); setCalMonth(11); }

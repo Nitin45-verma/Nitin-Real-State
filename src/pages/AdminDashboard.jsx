@@ -244,16 +244,6 @@ const AdminDashboard = () => {
   };
 
   // Admin Actions
-  const handleToggleVerification = async (id, currentStatus) => {
-    try {
-      await axios.put(`/api/properties/verify/${id}`, { isVerified: !currentStatus });
-      fetchProperties();
-      showNotification('success', 'Property verification status updated successfully!');
-    } catch (error) {
-      showNotification('danger', 'Failed to update property verification');
-    }
-  };
-
   const handleDeleteProperty = async (id, title) => {
     if (!window.confirm(`Are you sure you want to delete the property "${title}"?`)) return;
     try {
@@ -606,19 +596,7 @@ const AdminDashboard = () => {
                 )}
               </button>
             </li>
-            <li className="nav-item">
-              <button 
-                onClick={() => setActiveTab('verification')} 
-                className={`nav-link rounded-pill px-4 py-2 fw-semibold transition-all text-nowrap position-relative ${activeTab === 'verification' ? 'bg-warning text-dark fw-bold shadow-sm' : 'text-light hover-bg-light'}`}
-              >
-                <i className="bi bi-shield-check me-2"></i>Verification Desk
-                {properties.filter(p => p.ownershipDocument && !p.isVerified).length > 0 && (
-                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger border border-2 border-dark" style={{fontSize: '0.65rem'}}>
-                    {properties.filter(p => p.ownershipDocument && !p.isVerified).length}
-                  </span>
-                )}
-              </button>
-            </li>
+
           </ul>
 
           {activeTab !== 'overview' && (
@@ -709,7 +687,7 @@ const AdminDashboard = () => {
                             ) : (
                               <button 
                                 onClick={() => handleSetVerifyUser(u._id, true)}
-                                className="btn btn-success btn-sm rounded-pill px-2 py-1 fw-bold small text-nowrap"
+                                className="btn btn-success text-dark btn-sm rounded-pill px-2 py-1 fw-bold small text-nowrap"
                                 title="Verify User"
                               >
                                 ✓ Verify
@@ -787,7 +765,7 @@ const AdminDashboard = () => {
                           <div className="d-flex gap-2 justify-content-end">
                             <button 
                               onClick={() => handleToggleApproveProperty(p._id, !p.isApproved, p.title)}
-                              className={`btn ${p.isApproved ? 'btn-outline-warning' : 'btn-success'} btn-sm rounded-circle p-2`}
+                              className={`btn ${p.isApproved ? 'btn-outline-warning' : 'btn-success text-dark'} btn-sm rounded-circle p-2`}
                               title={p.isApproved ? 'Revoke Approval / Mark Pending' : 'Approve & List Property'}
                               style={{ width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                             >
@@ -870,7 +848,7 @@ const AdminDashboard = () => {
                               {!u.isVerified ? (
                                 <button 
                                   onClick={() => handleSetVerifyUser(u._id, true)}
-                                  className="btn btn-success btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm d-inline-flex align-items-center gap-1"
+                                  className="btn btn-success text-dark btn-sm rounded-pill px-3 py-1 fw-bold shadow-sm d-inline-flex align-items-center gap-1"
                                   title="Verify and Approve Seller Email"
                                 >
                                   <i className="bi bi-check-circle-fill"></i> Verify User
@@ -1070,73 +1048,7 @@ const AdminDashboard = () => {
         )}
 
         {/* BOOKINGS TAB */}
-        {activeTab === 'verification' && (
-          <motion.div variants={staggerContainer} initial="initial" animate="animate" exit="exit" className="card card-luxury border-0 shadow-lg">
-            <div className="card-header bg-gradient-dark text-white p-4 d-flex justify-content-between align-items-center">
-              <h5 className="mb-0 fw-bold fs-4 d-flex align-items-center">
-                <i className="bi bi-shield-check me-3 text-warning"></i>Document Verification Desk
-              </h5>
-            </div>
-            <div className="card-body p-0">
-              <div className="table-responsive">
-                <table className="table table-hover align-middle mb-0 custom-admin-table">
-                  <thead className="table-light text-uppercase small text-muted">
-                    <tr>
-                      <th className="px-4 py-3">Property</th>
-                      <th className="py-3">Seller</th>
-                      <th className="py-3 text-center">Document</th>
-                      <th className="py-3 text-center">Status</th>
-                      <th className="px-4 py-3 text-end">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {properties.filter(p => p.ownershipDocument).length === 0 ? (
-                      <tr><td colSpan="5" className="text-center py-5 text-muted"><i className="bi bi-folder2-open display-4 d-block mb-3 opacity-50"></i>No properties with uploaded documents found.</td></tr>
-                    ) : (
-                      properties.filter(p => p.ownershipDocument).map(p => (
-                        <motion.tr variants={fadeInUp} key={p._id}>
-                          <td className="px-4 py-3">
-                            <div className="d-flex align-items-center gap-3">
-                              <img src={p.image ? `http://13.51.201.78:5000${p.image}` : "https://via.placeholder.com/50"} alt="Property" className="rounded-3 object-fit-cover shadow-sm border" style={{ width: '50px', height: '50px' }} />
-                              <div>
-                                <div className="fw-bold text-dark">{p.title}</div>
-                                <div className="small text-muted"><i className="bi bi-geo-alt-fill me-1 text-warning"></i>{p.location}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-3">
-                            <div className="fw-semibold text-dark">{p.user_id?.name || 'Unknown'}</div>
-                            <div className="small text-muted">{p.user_id?.email || 'No email'}</div>
-                          </td>
-                          <td className="py-3 text-center">
-                            <a href={`http://13.51.201.78:5000${p.ownershipDocument}`} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-info rounded-pill px-3">
-                              <i className="bi bi-eye-fill me-1"></i> View Document
-                            </a>
-                          </td>
-                          <td className="py-3 text-center">
-                            {p.isVerified ? (
-                              <span className="badge bg-success rounded-pill px-3 py-1 fw-semibold"><i className="bi bi-check-circle-fill me-1"></i>Verified</span>
-                            ) : (
-                              <span className="badge bg-warning text-dark rounded-pill px-3 py-1 fw-semibold"><i className="bi bi-hourglass-split me-1"></i>Pending</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-end">
-                            <button 
-                              onClick={() => handleToggleVerification(p._id, p.isVerified)} 
-                              className={`btn btn-sm rounded-pill px-3 ${p.isVerified ? 'btn-danger' : 'btn-success'}`}
-                            >
-                              {p.isVerified ? <><i className="bi bi-x-circle me-1"></i>Revoke</> : <><i className="bi bi-check2-all me-1"></i>Approve</>}
-                            </button>
-                          </td>
-                        </motion.tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </motion.div>
-        )}
+
 
         {activeTab === 'bookings' && (
           <div className="glass-card rounded-4 p-4">

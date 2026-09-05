@@ -123,8 +123,9 @@ const Login = () => {
   };
 
   const callbackRef = useRef();
-  callbackRef.current = handleGoogleCallback;
-
+  useEffect(() => {
+    callbackRef.current = handleGoogleCallback;
+  }, [handleGoogleCallback]);
   useEffect(() => {
     const initializeGoogle = () => {
       const targetDiv = document.getElementById('googleSignInDiv');

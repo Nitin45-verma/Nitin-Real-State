@@ -10,7 +10,7 @@ import VisitBookingModal from '../components/VisitBookingModal';
 import PropertiesMap from '../components/PropertiesMap';
 import PropertyChat from '../components/PropertyChat';
 import { getImageUrl } from '../utils/imageUrl';
-import { Link } from 'react-router-dom';
+
 import prop1 from '../assets/prop1.png';
 import prop2 from '../assets/prop2.png';
 import prop3 from '../assets/prop3.png';

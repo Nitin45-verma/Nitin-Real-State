@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { io } from 'socket.io-client';
+import axios from 'axios';
 import { AuthContext } from '../context/AuthContext';
 import './PropertyChat.css';
 
@@ -13,7 +14,7 @@ const PropertyChat = ({ property, onClose }) => {
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
 
-  const buyer_id = user?.role === 'Buyer' ? user._id : null;
+
   // If the current user is the seller, they'll see multiple buyers ideally, but for now we'll do 1-on-1 where the room is always based on the logged-in buyer.
   // Realistically, the seller needs a dashboard to view all chats. This is a simplified 1-on-1 for the property page.
   const room_seller_id = property.user_id?._id || property.user_id;
@@ -22,12 +23,25 @@ const PropertyChat = ({ property, onClose }) => {
     // Only connect if the user is a buyer, or if we handle seller incoming chats
     if (!user) return;
 
-    socket = io('http://localhost:5000'); // Assuming backend is on 5000
+    // Fetch chat history
+    const fetchHistory = async () => {
+      try {
+        const res = await axios.get(`/api/chat/history/${property._id}/${user._id}/${room_seller_id}`);
+        if (res.data.success) {
+          setMessages(res.data.messages);
+        }
+      } catch (err) {
+        console.error('Failed to fetch chat history:', err);
+      }
+    };
+    fetchHistory();
+
+    socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000'); 
 
     // Join room
     socket.emit('join_room', {
       property_id: property._id,
-      buyer_id: user._id, // Assume current user is buyer for this context
+      buyer_id: user._id, 
       seller_id: room_seller_id
     });
 

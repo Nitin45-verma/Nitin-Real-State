@@ -115,7 +115,7 @@ const AuraChatbot = () => {
                   );
                 }
               }
-            } catch (e) {
+            } catch {
               // Ignore non-JSON SSE lines
             }
           }
@@ -179,7 +179,7 @@ const AuraChatbot = () => {
                 <div>
                   <div className="d-flex align-items-center gap-2 mb-1">
                     <span className="fw-bold text-gold-gradient fs-6">Aura — Nitin Real Estate</span>
-                    <span className="badge bg-success text-white fw-bold rounded-pill px-2 py-1 small" style={{ fontSize: '0.65rem' }}>Online</span>
+                    <span className="badge bg-success text-dark fw-bold rounded-pill px-2 py-1 small" style={{ fontSize: '0.65rem' }}>Online</span>
                   </div>
                   <small className="text-slate-light d-block" style={{ fontSize: '0.75rem' }}>
                     Property Consultant • Ultra Fast Streaming
